@@ -1,12 +1,32 @@
 {
   "name": "byte-datepicker",
   "version": "0.1.0",
-  "description": "A lightweight custom React datepicker component.",
+  "description": "A lightweight, elegant, and highly customizable React datepicker componentlibrary with support for both month/year and full date selection.",
   "author": "Rahman Nugar",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rahmannugar/byte-datepicker.git"
+  },
+  "homepage": "https://github.com/Rahmannugar/byte-datepicker#readme",
+  "bugs": {
+    "url": "https://github.com/Rahmannugar/byte-datepicker/issues"
+  },
+  "keywords": [
+    "react",
+    "datepicker",
+    "date",
+    "picker",
+    "calendar",
+    "typescript",
+    "component",
+    "ui",
+    "month-picker",
+    "year-picker"
+  ],
   "files": [
     "dist"
   ],
@@ -20,6 +40,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --no-splitting",
+    "build:css": "echo 'Remember to manually copy src/index.css to dist/styles.css'",
     "dev": "vite",
     "prepublishOnly": "npm run build"
   },

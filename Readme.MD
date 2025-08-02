@@ -301,9 +301,10 @@ npm run build
 
 Byte DatePicker is designed to be lightweight:
 
-- **Minified**: ~12KB
-- **Minified + Gzipped**: ~4KB
-- **Zero dependencies** (except React peer dependencies)
+- **Unpacked Size**: ~34KB (includes all build files, types, and source maps)
+- **Minified**: The actual component code is much smaller when bundled
+- **Zero runtime dependencies** (except React peer dependencies)
+- **Tree-shakeable**: Modern bundlers will only include what you use
 
 ## 🤝 Contributing
 
