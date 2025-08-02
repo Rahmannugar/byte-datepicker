@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import "../styles/datepicker.css";
 
 interface DatePickerProps {
   value?: Date;
