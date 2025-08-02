@@ -1,9 +1,13 @@
 # Byte DatePicker
 
-A lightweight, elegant, and highly customizable React datepicker component with support for both month/year and full date selection.
+A lightweight, elegant, and highly customizable React datepicker library component with support for both month/year and full date selection.
 
 [![npm version](https://badge.fury.io/js/byte-datepicker.svg)](https://badge.fury.io/js/byte-datepicker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## 🎬 Demo
+
+![Byte DatePicker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/demo.gif)
 
 ## ✨ Features
 
@@ -14,6 +18,14 @@ A lightweight, elegant, and highly customizable React datepicker component with 
 - 🗓️ **Flexible** - Month/year picker or full date picker modes
 - ⚡ **Modern** - Built with TypeScript and modern React patterns
 - 🎭 **Beautiful UI** - Clean, modern interface with smooth animations
+
+### Month/Year Picker Mode
+
+![Month Year Picker](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/month-year-picker.png)
+
+### Full Date Picker Mode
+
+![Full Date Picker](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/full-date-picker.png)
 
 ## 🚀 Installation
 
@@ -30,6 +42,7 @@ pnpm add byte-datepicker
 ```
 
 ## 📖 Usage
+
 
 ### Basic Usage
 
@@ -57,6 +70,8 @@ function App() {
 
 Perfect for date of birth, expiry dates, or when you only need month and year:
 
+![Month/Year Picker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/month-year-demo.gif)
+
 ```tsx
 import ByteDatePicker from "byte-datepicker";
 import "byte-datepicker/styles.css";
@@ -79,6 +94,8 @@ function MonthYearPicker() {
 
 For complete date selection including days:
 
+![Full Date Picker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/full-date-demo.gif)
+
 ```tsx
 import ByteDatePicker from "byte-datepicker";
 import "byte-datepicker/styles.css";
@@ -97,13 +114,14 @@ function FullDatePicker() {
 }
 ```
 
+### Year Selection View
+
+![Year Selection](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/year-selection.png)
+
 ### Disabled State
 
 ```tsx
-<ByteDatePicker
-  disabled={true}
-  placeholder="This picker is disabled"
-/>
+<ByteDatePicker disabled={true} placeholder="This picker is disabled" />
 ```
 
 ### Controlled Component
@@ -113,7 +131,7 @@ function ControlledExample() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const handleDateChange = (date: Date) => {
-    console.log('Selected date:', date);
+    console.log("Selected date:", date);
     setSelectedDate(date);
   };
 
@@ -129,13 +147,13 @@ function ControlledExample() {
 
 ## 📋 Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `Date \| undefined` | `undefined` | The currently selected date |
-| `onChange` | `(date: Date) => void` | `undefined` | Callback function called when a date is selected |
-| `placeholder` | `string` | `"Select Date"` | Placeholder text shown when no date is selected |
-| `disabled` | `boolean` | `false` | Whether the datepicker is disabled |
-| `includeDays` | `boolean` | `false` | Whether to show day selection (full date picker mode) |
+| Prop          | Type                   | Default         | Description                                           |
+| ------------- | ---------------------- | --------------- | ----------------------------------------------------- |
+| `value`       | `Date \| undefined`    | `undefined`     | The currently selected date                           |
+| `onChange`    | `(date: Date) => void` | `undefined`     | Callback function called when a date is selected      |
+| `placeholder` | `string`               | `"Select Date"` | Placeholder text shown when no date is selected       |
+| `disabled`    | `boolean`              | `false`         | Whether the datepicker is disabled                    |
+| `includeDays` | `boolean`              | `false`         | Whether to show day selection (full date picker mode) |
 
 ## 🎨 Styling
 
@@ -151,26 +169,40 @@ The component uses CSS classes that you can easily override. Here are the main c
 
 ```css
 /* Main container */
-.datepicker-container { }
+.datepicker-container {
+}
 
 /* Input field */
-.datepicker-input { }
-.datepicker-input:hover { }
-.datepicker-input:focus-within { }
-.datepicker-input.disabled { }
+.datepicker-input {
+}
+.datepicker-input:hover {
+}
+.datepicker-input:focus-within {
+}
+.datepicker-input.disabled {
+}
 
 /* Dropdown */
-.datepicker-dropdown { }
-.datepicker-overlay { }
+.datepicker-dropdown {
+}
+.datepicker-overlay {
+}
 
 /* Buttons */
-.month-button { }
-.month-button.selected { }
-.month-button.current { }
-.day-cell { }
-.day-cell.selected { }
-.year-button { }
-.year-button.current { }
+.month-button {
+}
+.month-button.selected {
+}
+.month-button.current {
+}
+.day-cell {
+}
+.day-cell.selected {
+}
+.year-button {
+}
+.year-button.current {
+}
 ```
 
 ### Theme Customization
@@ -232,7 +264,7 @@ function FormExample() {
           />
         )}
       />
-      
+
       <Controller
         name="appointmentDate"
         control={control}
