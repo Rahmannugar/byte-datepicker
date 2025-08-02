@@ -19,7 +19,7 @@
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --no-splitting && cp src/index.css dist/styles.css",
+    "build": "tsup src/index.ts --format cjs,esm --dts --no-splitting",
     "dev": "vite",
     "prepublishOnly": "npm run build"
   },
