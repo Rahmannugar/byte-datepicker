@@ -18,6 +18,8 @@ A lightweight, elegant, and highly customizable React datepicker library compone
 - 🗓️ **Flexible** - Month/year picker or full date picker modes
 - ⚡ **Modern** - Built with TypeScript and modern React patterns
 - 🎭 **Beautiful UI** - Clean, modern interface with smooth animations
+- 🧩 **Custom Input Support** - Use your own input/button with full control
+- 🗓️ **Display Formatting** - Easily control how the date is displayed
 
 ### Month/Year Picker Mode
 
@@ -43,7 +45,6 @@ pnpm add byte-datepicker
 
 ## 📖 Usage
 
-
 ### Basic Usage
 
 ```tsx
@@ -52,7 +53,7 @@ import ByteDatePicker from "byte-datepicker";
 import "byte-datepicker/styles.css"; // Don't forget to import styles!
 
 function App() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   return (
     <div>
@@ -70,14 +71,12 @@ function App() {
 
 Perfect for date of birth, expiry dates, or when you only need month and year:
 
-![Month/Year Picker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/month-year-demo.gif)
-
 ```tsx
 import ByteDatePicker from "byte-datepicker";
 import "byte-datepicker/styles.css";
 
 function MonthYearPicker() {
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date | null>(null);
 
   return (
     <ByteDatePicker
@@ -94,14 +93,12 @@ function MonthYearPicker() {
 
 For complete date selection including days:
 
-![Full Date Picker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/full-date-demo.gif)
-
 ```tsx
 import ByteDatePicker from "byte-datepicker";
 import "byte-datepicker/styles.css";
 
 function FullDatePicker() {
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date | null>(null);
 
   return (
     <ByteDatePicker
@@ -114,23 +111,67 @@ function FullDatePicker() {
 }
 ```
 
-### Year Selection View
+### Custom Input (Hide Default Input)
 
-![Year Selection](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/year-selection.png)
-
-### Disabled State
+You can use your own input or button to trigger the datepicker and fully control its styling (e.g., with Tailwind CSS):
 
 ```tsx
-<ByteDatePicker disabled={true} placeholder="This picker is disabled" />
+import React, { useState } from "react";
+import ByteDatePicker from "byte-datepicker";
+import "byte-datepicker/styles.css";
+
+function CustomInputExample() {
+  const [date, setDate] = useState<Date | null>(null);
+
+  return (
+    <ByteDatePicker
+      value={date}
+      onChange={setDate}
+      hideInput
+      formatString="dd-mm-yyyy" // Controls display format for formattedValue
+    >
+      {({ open, formattedValue }) => (
+        <input
+          readOnly
+          value={formattedValue}
+          placeholder="Pick a date"
+          onClick={open}
+          className="border border-purple-600 rounded-lg px-4 py-2 text-lg focus:ring-2 focus:ring-purple-400"
+        />
+      )}
+    </ByteDatePicker>
+  );
+}
+```
+
+- `hideInput` hides the default input.
+- Use the `children` render prop to provide your own input or button.
+- `formattedValue` is automatically formatted using `formatString` (e.g., `"dd-mm-yyyy"`, `"yyyy/mm/dd"`, etc.).
+
+### Custom Display Formatting
+
+You can control how the date is displayed in the input (default or custom) using the `formatString` prop:
+
+```tsx
+<ByteDatePicker
+  value={date}
+  onChange={setDate}
+  formatString="yyyy/mm/dd" // e.g., 2025/08/14
+/>
+<ByteDatePicker
+  value={date}
+  onChange={setDate}
+  formatString="dd-mm-yyyy" // e.g., 14-08-2025
+/>
 ```
 
 ### Controlled Component
 
 ```tsx
 function ControlledExample() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  const handleDateChange = (date: Date) => {
+  const handleDateChange = (date: Date | null) => {
     console.log("Selected date:", date);
     setSelectedDate(date);
   };
@@ -145,15 +186,49 @@ function ControlledExample() {
 }
 ```
 
+### Min/Max Date
+
+You can restrict the selectable date range using the `minDate` and `maxDate` props.  
+You can pass either a `Date` object or a string in `"YYYY-MM-DD"` or `"YYYY/MM/DD"` format:
+
+```tsx
+import ByteDatePicker from "byte-datepicker";
+import "byte-datepicker/styles.css";
+
+function LimitedRangePicker() {
+  const [date, setDate] = useState<Date | null>(null);
+
+  return (
+    <ByteDatePicker
+      value={date}
+      onChange={setDate}
+      minDate="2020-01-01" // or new Date(2020, 0, 1) which returns Jan 1, 2020
+      maxDate="2030-12-31" // or new Date(2030, 11, 31) which returns Dec 31, 2030
+      placeholder="Pick a date within range"
+      includeDays={true}
+    />
+  );
+}
+```
+
+- Dates outside the range will be disabled in the picker.
+
 ## 📋 Props
 
-| Prop          | Type                   | Default         | Description                                           |
-| ------------- | ---------------------- | --------------- | ----------------------------------------------------- |
-| `value`       | `Date \| undefined`    | `undefined`     | The currently selected date                           |
-| `onChange`    | `(date: Date) => void` | `undefined`     | Callback function called when a date is selected      |
-| `placeholder` | `string`               | `"Select Date"` | Placeholder text shown when no date is selected       |
-| `disabled`    | `boolean`              | `false`         | Whether the datepicker is disabled                    |
-| `includeDays` | `boolean`              | `false`         | Whether to show day selection (full date picker mode) |
+| Prop           | Type                           | Default         | Description                                                                                    |
+| -------------- | ------------------------------ | --------------- | ---------------------------------------------------------------------------------------------- |
+| `value`        | `Date \| null`                 | `null`          | The currently selected date                                                                    |
+| `onChange`     | `(date: Date \| null) => void` | `undefined`     | Callback function called when a date is selected                                               |
+| `placeholder`  | `string`                       | `"Select Date"` | Placeholder text shown when no date is selected                                                |
+| `disabled`     | `boolean`                      | `false`         | Whether the datepicker is disabled                                                             |
+| `includeDays`  | `boolean`                      | `false`         | Whether to show day selection (full date picker mode)                                          |
+| `minDate`      | `Date`                         | `undefined`     | Minimum selectable date                                                                        |
+| `maxDate`      | `Date`                         | `undefined`     | Maximum selectable date                                                                        |
+| `formatString` | `string`                       | `undefined`     | Controls how the date is displayed (e.g., `"yyyy-mm-dd"`, `"dd/mm/yyyy"`, `"dd-mm-yyyy"`)      |
+| `hideInput`    | `boolean`                      | `false`         | Hide the default input and use a custom input/button via the `children` render prop            |
+| `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input/button. Receives `{ open, isOpen, selectedDate, formattedValue }` |
+
+---
 
 ## 🎨 Styling
 
@@ -204,6 +279,11 @@ The component uses CSS classes that you can easily override. Here are the main c
 .year-button.current {
 }
 ```
+
+#### Using Tailwind CSS or Custom CSS
+
+- For the input: Use `hideInput` and provide your own input/button with any Tailwind or custom classes.
+- For the calendar/dropdown: Override the provided CSS classes in your global stylesheet.
 
 ### Theme Customization
 
@@ -286,8 +366,8 @@ function FormExample() {
 
 ```tsx
 function MultiplePickers() {
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   return (
     <div className="flex gap-4">

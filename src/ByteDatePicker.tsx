@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 
 interface DatePickerProps {
@@ -8,8 +6,8 @@ interface DatePickerProps {
   placeholder?: string;
   disabled?: boolean;
   includeDays?: boolean;
-  minDate?: Date;
-  maxDate?: Date;
+  minDate?: Date | string;
+  maxDate?: Date | string;
   formatString?: string;
   hideInput?: boolean;
   children?: (props: {
@@ -50,6 +48,13 @@ function formatDateByString(date: Date, format: string): string {
   return format.replace(/yyyy/g, yyyy).replace(/mm/g, mm).replace(/dd/g, dd);
 }
 
+function normalizeToDate(val?: Date | string): Date | undefined {
+  if (!val) return undefined;
+  if (val instanceof Date) return val;
+  const parsed = new Date(val);
+  return isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
 export default function ByteDatePicker({
   value,
   onChange,
@@ -76,6 +81,9 @@ export default function ByteDatePicker({
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const min = normalizeToDate(minDate);
+  const max = normalizeToDate(maxDate);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -110,8 +118,8 @@ export default function ByteDatePicker({
   };
 
   const isDateInRange = (date: Date) => {
-    if (minDate && date < minDate) return false;
-    if (maxDate && date > maxDate) return false;
+    if (min && date < min) return false;
+    if (max && date > max) return false;
     return true;
   };
 
