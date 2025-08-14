@@ -1,6 +1,6 @@
 # Byte DatePicker
 
-A lightweight, elegant, and highly customizable React datepicker library component with support for both month/year and full date selection.
+A lightweight, elegant, and highly customizable React datepicker component with support for both month/year and full date selection.
 
 [![npm version](https://badge.fury.io/js/byte-datepicker.svg)](https://badge.fury.io/js/byte-datepicker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
