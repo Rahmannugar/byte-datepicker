@@ -16,6 +16,7 @@ interface DatePickerProps {
     open: () => void;
     isOpen: boolean;
     selectedDate: Date | null;
+    formattedValue: string;
   }) => React.ReactNode;
 }
 
@@ -209,6 +210,7 @@ export default function ByteDatePicker({
           open,
           isOpen,
           selectedDate,
+          formattedValue: formatDisplay(selectedDate),
         })
       )}
 
