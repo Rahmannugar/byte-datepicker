@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface DatePickerProps {
   value?: Date | null;
@@ -225,178 +226,55 @@ export default function ByteDatePicker({
           formattedValue: formatDisplay(selectedDate),
         })
       )}
+      {isOpen &&
+        createPortal(
+          <>
+            <div
+              className="datepicker-overlay"
+              onClick={() => setIsOpen(false)}
+            />
+            <div
+              className="datepicker-dropdown"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {viewMode === "months" && (
+                <>
+                  <div className="datepicker-header">
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateYear("prev")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="15,18 9,12 15,6" />
+                      </svg>
+                    </button>
+                    <button
+                      className="month-year-button"
+                      onClick={() => setViewMode("years")}
+                    >
+                      {currentYear}
+                    </button>
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateYear("next")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="9,18 15,12 9,6" />
+                      </svg>
+                    </button>
+                  </div>
 
-      {isOpen && (
-        <>
-          <div
-            className="datepicker-overlay"
-            onClick={() => setIsOpen(false)}
-          />
-          <div
-            className="datepicker-dropdown"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {viewMode === "months" && (
-              <>
-                <div className="datepicker-header">
-                  <button
-                    className="nav-button"
-                    onClick={() => navigateYear("prev")}
-                  >
-                    <svg viewBox="0 0 24 24" stroke="currentColor">
-                      <polyline points="15,18 9,12 15,6" />
-                    </svg>
-                  </button>
-                  <button
-                    className="month-year-button"
-                    onClick={() => setViewMode("years")}
-                  >
-                    {currentYear}
-                  </button>
-                  <button
-                    className="nav-button"
-                    onClick={() => navigateYear("next")}
-                  >
-                    <svg viewBox="0 0 24 24" stroke="currentColor">
-                      <polyline points="9,18 15,12 9,6" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="month-grid">
-                  {monthNames.map((month, index) => {
-                    const monthDate = new Date(currentYear, index, 1);
-                    const isDisabled = !isDateInRange(monthDate);
-                    return (
-                      <button
-                        key={month}
-                        className={`month-button ${
-                          isCurrentMonth(index) ? "current" : ""
-                        } ${isSelected(index) ? "selected" : ""}`}
-                        onClick={() => handleMonthSelect(index)}
-                        disabled={isDisabled}
-                        style={
-                          isDisabled
-                            ? { opacity: 0.5, cursor: "not-allowed" }
-                            : {}
-                        }
-                      >
-                        <span className="month-name">{month}</span>
-                        <span className="month-short">
-                          {shortMonthNames[index]}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-
-            {viewMode === "years" && (
-              <>
-                <div className="datepicker-header">
-                  <button
-                    className="nav-button"
-                    onClick={() => navigateYear("prev")}
-                  >
-                    <svg viewBox="0 0 24 24" stroke="currentColor">
-                      <polyline points="15,18 9,12 15,6" />
-                    </svg>
-                  </button>
-                  <span className="year-range-title">
-                    {yearRange[0]} - {yearRange[yearRange.length - 1]}
-                  </span>
-                  <button
-                    className="nav-button"
-                    onClick={() => navigateYear("next")}
-                  >
-                    <svg viewBox="0 0 24 24" stroke="currentColor">
-                      <polyline points="9,18 15,12 9,6" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="year-grid">
-                  {yearRange.map((year) => {
-                    const yearDate = new Date(year, 0, 1);
-                    const isDisabled = !isDateInRange(yearDate);
-                    return (
-                      <button
-                        key={year}
-                        className={`year-button ${
-                          year === currentYear ? "current" : ""
-                        }`}
-                        onClick={() => handleYearSelect(year)}
-                        disabled={isDisabled}
-                        style={
-                          isDisabled
-                            ? { opacity: 0.5, cursor: "not-allowed" }
-                            : {}
-                        }
-                      >
-                        {year}
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-
-            {viewMode === "days" && (
-              <>
-                <div className="datepicker-header">
-                  <button
-                    className="nav-button"
-                    onClick={() => navigateMonth("prev")}
-                  >
-                    <svg viewBox="0 0 24 24" stroke="currentColor">
-                      <polyline points="15,18 9,12 15,6" />
-                    </svg>
-                  </button>
-                  <button
-                    className="month-year-button"
-                    onClick={() => setViewMode("months")}
-                  >
-                    {monthNames[currentMonth]} {currentYear}
-                  </button>
-                  <button
-                    className="nav-button"
-                    onClick={() => navigateMonth("next")}
-                  >
-                    <svg viewBox="0 0 24 24" stroke="currentColor">
-                      <polyline points="9,18 15,12 9,6" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="weekday-header">
-                  {weekDays.map((day) => (
-                    <div key={day} className="weekday">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="day-grid">
-                  {Array.from(
-                    { length: getFirstDayOfMonth(currentYear, currentMonth) },
-                    (_, i) => (
-                      <div key={`empty-${i}`} className="day-cell empty" />
-                    )
-                  )}
-                  {Array.from(
-                    { length: getDaysInMonth(currentYear, currentMonth) },
-                    (_, i) => {
-                      const day = i + 1;
-                      const dayDate = new Date(currentYear, currentMonth, day);
-                      const isDisabled = !isDateInRange(dayDate);
+                  <div className="month-grid">
+                    {monthNames.map((month, index) => {
+                      const monthDate = new Date(currentYear, index, 1);
+                      const isDisabled = !isDateInRange(monthDate);
                       return (
                         <button
-                          key={day}
-                          className={`day-cell ${
-                            isSelectedDay(day) ? "selected" : ""
-                          } ${isToday(day) ? "current" : ""}`}
-                          onClick={() => handleDaySelect(day)}
+                          key={month}
+                          className={`month-button ${
+                            isCurrentMonth(index) ? "current" : ""
+                          } ${isSelected(index) ? "selected" : ""}`}
+                          onClick={() => handleMonthSelect(index)}
                           disabled={isDisabled}
                           style={
                             isDisabled
@@ -404,17 +282,145 @@ export default function ByteDatePicker({
                               : {}
                           }
                         >
-                          {day}
+                          <span className="month-name">{month}</span>
+                          <span className="month-short">
+                            {shortMonthNames[index]}
+                          </span>
                         </button>
                       );
-                    }
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </>
-      )}
+                    })}
+                  </div>
+                </>
+              )}
+
+              {viewMode === "years" && (
+                <>
+                  <div className="datepicker-header">
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateYear("prev")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="15,18 9,12 15,6" />
+                      </svg>
+                    </button>
+                    <span className="year-range-title">
+                      {yearRange[0]} - {yearRange[yearRange.length - 1]}
+                    </span>
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateYear("next")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="9,18 15,12 9,6" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="year-grid">
+                    {yearRange.map((year) => {
+                      const yearDate = new Date(year, 0, 1);
+                      const isDisabled = !isDateInRange(yearDate);
+                      return (
+                        <button
+                          key={year}
+                          className={`year-button ${
+                            year === currentYear ? "current" : ""
+                          }`}
+                          onClick={() => handleYearSelect(year)}
+                          disabled={isDisabled}
+                          style={
+                            isDisabled
+                              ? { opacity: 0.5, cursor: "not-allowed" }
+                              : {}
+                          }
+                        >
+                          {year}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {viewMode === "days" && (
+                <>
+                  <div className="datepicker-header">
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateMonth("prev")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="15,18 9,12 15,6" />
+                      </svg>
+                    </button>
+                    <button
+                      className="month-year-button"
+                      onClick={() => setViewMode("months")}
+                    >
+                      {monthNames[currentMonth]} {currentYear}
+                    </button>
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateMonth("next")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="9,18 15,12 9,6" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="weekday-header">
+                    {weekDays.map((day) => (
+                      <div key={day} className="weekday">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="day-grid">
+                    {Array.from(
+                      { length: getFirstDayOfMonth(currentYear, currentMonth) },
+                      (_, i) => (
+                        <div key={`empty-${i}`} className="day-cell empty" />
+                      )
+                    )}
+                    {Array.from(
+                      { length: getDaysInMonth(currentYear, currentMonth) },
+                      (_, i) => {
+                        const day = i + 1;
+                        const dayDate = new Date(
+                          currentYear,
+                          currentMonth,
+                          day
+                        );
+                        const isDisabled = !isDateInRange(dayDate);
+                        return (
+                          <button
+                            key={day}
+                            className={`day-cell ${
+                              isSelectedDay(day) ? "selected" : ""
+                            } ${isToday(day) ? "current" : ""}`}
+                            onClick={() => handleDaySelect(day)}
+                            disabled={isDisabled}
+                            style={
+                              isDisabled
+                                ? { opacity: 0.5, cursor: "not-allowed" }
+                                : {}
+                            }
+                          >
+                            {day}
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </>,
+          document.body
+        )}
     </div>
   );
 }
