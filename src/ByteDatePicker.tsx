@@ -82,27 +82,30 @@ export default function ByteDatePicker({
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const min = normalizeToDate(minDate);
   const max = normalizeToDate(maxDate);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
       if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current?.contains(target) &&
+        !dropdownRef.current?.contains(target)
       ) {
         setIsOpen(false);
         setViewMode("months");
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     setSelectedDate(value ?? null);
@@ -235,6 +238,7 @@ export default function ByteDatePicker({
             />
             <div
               className="datepicker-dropdown"
+              ref={dropdownRef}
               onClick={(e) => e.stopPropagation()}
             >
               {viewMode === "months" && (
