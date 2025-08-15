@@ -232,7 +232,10 @@ export default function ByteDatePicker({
             className="datepicker-overlay"
             onClick={() => setIsOpen(false)}
           />
-          <div className="datepicker-dropdown">
+          <div
+            className="datepicker-dropdown"
+            onClick={(e) => e.stopPropagation()}
+          >
             {viewMode === "months" && (
               <>
                 <div className="datepicker-header">
