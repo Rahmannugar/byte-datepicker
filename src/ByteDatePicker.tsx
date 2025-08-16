@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 interface DatePickerProps {
-  value?: Date | null;
+  value?: Date | string | null;
   onChange?: (value: Date | null) => void;
   placeholder?: string;
   disabled?: boolean;
@@ -69,12 +69,15 @@ export default function ByteDatePicker({
   children,
 }: DatePickerProps) {
   const today = new Date();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(value ?? null);
+  const normalizedValue = normalizeToDate(value ?? undefined) ?? null;
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    normalizedValue
+  );
   const [currentYear, setCurrentYear] = useState(
-    value?.getFullYear() || today.getFullYear()
+    normalizedValue?.getFullYear() || today.getFullYear()
   );
   const [currentMonth, setCurrentMonth] = useState(
-    value?.getMonth() || today.getMonth()
+    normalizedValue?.getMonth() || today.getMonth()
   );
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"days" | "months" | "years">(
@@ -108,10 +111,11 @@ export default function ByteDatePicker({
   }, [isOpen]);
 
   useEffect(() => {
-    setSelectedDate(value ?? null);
-    if (value) {
-      setCurrentYear(value.getFullYear());
-      setCurrentMonth(value.getMonth());
+    const newDate = normalizeToDate(value ?? undefined) ?? null;
+    setSelectedDate(newDate);
+    if (newDate) {
+      setCurrentYear(newDate.getFullYear());
+      setCurrentMonth(newDate.getMonth());
     }
   }, [value]);
 

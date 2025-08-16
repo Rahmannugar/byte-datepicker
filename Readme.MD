@@ -217,16 +217,38 @@ function LimitedRangePicker() {
 
 | Prop           | Type                           | Default         | Description                                                                                    |
 | -------------- | ------------------------------ | --------------- | ---------------------------------------------------------------------------------------------- |
-| `value`        | `Date \| null`                 | `null`          | The currently selected date                                                                    |
+| `value`        | `Date \| string \| null`       | `null`          | The currently selected date. Accepts a `Date` object, ISO string, or date string.              |
 | `onChange`     | `(date: Date \| null) => void` | `undefined`     | Callback function called when a date is selected                                               |
 | `placeholder`  | `string`                       | `"Select Date"` | Placeholder text shown when no date is selected                                                |
 | `disabled`     | `boolean`                      | `false`         | Whether the datepicker is disabled                                                             |
 | `includeDays`  | `boolean`                      | `false`         | Whether to show day selection (full date picker mode)                                          |
-| `minDate`      | `Date`                         | `undefined`     | Minimum selectable date                                                                        |
-| `maxDate`      | `Date`                         | `undefined`     | Maximum selectable date                                                                        |
+| `minDate`      | `Date \| string`               | `undefined`     | Minimum selectable date (accepts `Date` or string)                                             |
+| `maxDate`      | `Date \| string`               | `undefined`     | Maximum selectable date (accepts `Date` or string)                                             |
 | `formatString` | `string`                       | `undefined`     | Controls how the date is displayed (e.g., `"yyyy-mm-dd"`, `"dd/mm/yyyy"`, `"dd-mm-yyyy"`)      |
 | `hideInput`    | `boolean`                      | `false`         | Hide the default input and use a custom input/button via the `children` render prop            |
 | `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input/button. Receives `{ open, isOpen, selectedDate, formattedValue }` |
+
+---
+
+## 🗓️ Accepted Date Formats
+
+You can pass a `Date` object, an ISO string (`"YYYY-MM-DD"`), or a date string that JavaScript's `Date` constructor can parse to the `value`, `minDate`, and `maxDate` props.
+
+**Examples of accepted values:**
+
+```tsx
+<ByteDatePicker value={new Date()} onChange={setDate} />
+<ByteDatePicker value="2025-08-16" onChange={setDate} /> // ISO string
+<ByteDatePicker value="June 2025" onChange={setDate} />  // Month and year
+<ByteDatePicker value="2025" onChange={setDate} />       // Year only (Jan 1)
+<ByteDatePicker value="2013-01-01" onChange={setDate} /> // ISO string
+<ByteDatePicker value="25 Jan 2019" onChange={setDate} />// Day, month, year
+```
+
+**⚠️ Note:**
+
+- Short or ambiguous formats like `"jun 25"` or `"25/1/2019"` may not work reliably in all browsers.
+- For best results, use ISO strings (`"YYYY-MM-DD"`), full month names with year (`"June 2025"`), or `Date` objects.
 
 ---
 
