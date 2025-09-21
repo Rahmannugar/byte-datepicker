@@ -52,10 +52,11 @@ function formatDateByString(date: Date, format: string): string {
 function normalizeToDate(val?: Date | string): Date | undefined {
   if (!val) return undefined;
   if (val instanceof Date) return val;
-  // If string is in YYYY-MM-DD, parse as local date
-  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-    const [year, month, day] = val.split("-").map(Number);
-    return new Date(year, month - 1, day);
+  // If string starts with YYYY-MM-DD, parse as local date
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(val);
+  if (match) {
+    const [_, year, month, day] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day));
   }
   const parsed = new Date(val);
   return isNaN(parsed.getTime()) ? undefined : parsed;
