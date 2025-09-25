@@ -215,18 +215,22 @@ function LimitedRangePicker() {
 
 ## 📋 Props
 
-| Prop           | Type                           | Default         | Description                                                                                    |
-| -------------- | ------------------------------ | --------------- | ---------------------------------------------------------------------------------------------- |
-| `value`        | `Date \| string \| null`       | `null`          | The currently selected date. Accepts a `Date` object, ISO string, or date string.              |
-| `onChange`     | `(date: Date \| null) => void` | `undefined`     | Callback function called when a date is selected                                               |
-| `placeholder`  | `string`                       | `"Select Date"` | Placeholder text shown when no date is selected                                                |
-| `disabled`     | `boolean`                      | `false`         | Whether the datepicker is disabled                                                             |
-| `includeDays`  | `boolean`                      | `false`         | Whether to show day selection (full date picker mode)                                          |
-| `minDate`      | `Date \| string`               | `undefined`     | Minimum selectable date (accepts `Date` or string)                                             |
-| `maxDate`      | `Date \| string`               | `undefined`     | Maximum selectable date (accepts `Date` or string)                                             |
-| `formatString` | `string`                       | `undefined`     | Controls how the date is displayed (e.g., `"yyyy-mm-dd"`, `"dd/mm/yyyy"`, `"dd-mm-yyyy"`)      |
-| `hideInput`    | `boolean`                      | `false`         | Hide the default input and use a custom input/button via the `children` render prop            |
-| `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input/button. Receives `{ open, isOpen, selectedDate, formattedValue }` |
+| Prop           | Type                           | Default         | Description                                           |
+| -------------- | ------------------------------ | --------------- | ----------------------------------------------------- |
+| `value`        | `Date \| string \| null`       | `null`          | The currently selected date                           |
+| `onChange`     | `(date: Date \| null) => void` | `undefined`     | Callback function called when a date is selected      |
+| `placeholder`  | `string`                       | `"Select Date"` | Placeholder text shown when no date is selected       |
+| `disabled`     | `boolean`                      | `false`         | Whether the datepicker is disabled                    |
+| `includeDays`  | `boolean`                      | `false`         | Whether to show day selection (full date picker mode) |
+| `minDate`      | `Date \| string`               | `undefined`     | Minimum selectable date                               |
+| `maxDate`      | `Date \| string`               | `undefined`     | Maximum selectable date                               |
+| `formatString` | `string`                       | `undefined`     | Controls how the date is displayed                    |
+| `hideInput`    | `boolean`                      | `false`         | Hide the default input and use custom input           |
+| `required`     | `boolean`                      | `false`         | Makes the field required for form validation          |
+| `name`         | `string`                       | `undefined`     | Input name for form submission                        |
+| `onBlur`       | `() => void`                   | `undefined`     | Called when the input loses focus                     |
+| `error`        | `boolean`                      | `false`         | Whether the field has a validation error              |
+| `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input                          |
 
 ---
 
@@ -410,6 +414,77 @@ function MultiplePickers() {
 }
 ```
 
+### Form Validation Examples
+
+#### Simple Form Validation
+
+```tsx
+function SimpleFormExample() {
+  const [date, setDate] = useState<Date | null>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date) {
+      alert("Please select a date");
+      return;
+    }
+    // Form submission logic here
+    console.log("Submitting date:", date);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <ByteDatePicker value={date} onChange={setDate} required name="date" />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+#### Form Validation with props
+
+```tsx
+function FormExample() {
+  const [date, setDate] = useState<Date | null>(null);
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date) {
+      setError(true);
+      return;
+    }
+    // Form submission logic
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <ByteDatePicker
+        value={date}
+        onChange={(newDate) => {
+          setDate(newDate);
+          setError(false);
+        }}
+        required
+        name="date"
+        error={error}
+        onBlur={() => setError(!date)}
+      />
+      {error && <span style={{ color: "red" }}>Date is required</span>}
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+The datepicker supports:
+
+- Native HTML form validation
+- Custom validation state
+- Form library integration (React Hook Form, Formik)
+- Required field indication
+- Error state styling
+
 ## 🚀 Development
 
 Want to contribute? Great! Here's how to get started:
@@ -449,10 +524,6 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 

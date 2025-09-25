@@ -11,6 +11,10 @@ interface DatePickerProps {
   maxDate?: Date | string;
   formatString?: string;
   hideInput?: boolean;
+  required?: boolean;
+  name?: string;
+  onBlur?: () => void;
+  error?: boolean;
   children?: (props: {
     open: () => void;
     isOpen: boolean;
@@ -72,6 +76,10 @@ export default function ByteDatePicker({
   maxDate,
   formatString,
   hideInput = false,
+  required = false,
+  name,
+  onBlur,
+  error,
   children,
 }: DatePickerProps) {
   const today = new Date();
@@ -141,11 +149,18 @@ export default function ByteDatePicker({
     return true;
   };
 
+  // Add validation handling
+  const handleChange = (newDate: Date | null) => {
+    if (required && !newDate) {
+      return;
+    }
+    onChange?.(newDate);
+  };
+
   const handleDaySelect = (day: number) => {
     const newDate = new Date(currentYear, currentMonth, day);
     if (!isDateInRange(newDate)) return;
-    setSelectedDate(newDate);
-    onChange?.(newDate);
+    handleChange(newDate);
     setIsOpen(false);
     setViewMode(includeDays ? "days" : "months");
   };
@@ -157,8 +172,7 @@ export default function ByteDatePicker({
     } else {
       const newDate = new Date(currentYear, monthIndex, 1);
       if (!isDateInRange(newDate)) return;
-      setSelectedDate(newDate);
-      onChange?.(newDate);
+      handleChange(newDate);
       setIsOpen(false);
     }
   };
@@ -212,11 +226,20 @@ export default function ByteDatePicker({
     <div className="datepicker-container" ref={containerRef}>
       {!hideInput ? (
         <div
-          className={`datepicker-input ${disabled ? "disabled" : ""}`}
+          className="datepicker-input"
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
+          <input
+            type="hidden"
+            name={name}
+            value={selectedDate?.toISOString() || ""}
+            required={required}
+            onBlur={onBlur}
+            aria-invalid={error}
+          />
           <span className={selectedDate ? "selected" : "placeholder"}>
             {selectedDate ? formatDisplay(selectedDate) : placeholder}
+            {required && " *"}
           </span>
           <svg
             className="datepicker-icon"
