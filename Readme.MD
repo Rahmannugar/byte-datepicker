@@ -228,7 +228,9 @@ function LimitedRangePicker() {
 ### `className` Prop
 
 You can use the `className` prop to add your own custom CSS class to the outer container of the datepicker.  
-This is useful for applying custom styles, layout, or integrating with CSS frameworks like Tailwind.
+This is useful for applying custom styles, layout.
+
+Note: It doesn't integrate with CSS frameworks like Tailwind.
 
 **Example:**
 
