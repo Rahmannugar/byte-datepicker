@@ -244,7 +244,7 @@ export default function ByteDatePicker({
           />
           <span className={selectedDate ? "selected" : "placeholder"}>
             {selectedDate ? formatDisplay(selectedDate) : placeholder}
-            {required && " *"}
+            {required && !selectedDate && " *"}
           </span>
           <svg
             className="datepicker-icon"
