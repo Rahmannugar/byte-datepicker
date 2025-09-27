@@ -15,6 +15,7 @@ interface DatePickerProps {
   name?: string;
   onBlur?: () => void;
   error?: boolean;
+  className?: string;
   children?: (props: {
     open: () => void;
     isOpen: boolean;
@@ -56,7 +57,6 @@ function formatDateByString(date: Date, format: string): string {
 function normalizeToDate(val?: Date | string): Date | undefined {
   if (!val) return undefined;
   if (val instanceof Date) return val;
-  // If string starts with YYYY-MM-DD, parse as local date
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(val);
   if (match) {
     const [_, year, month, day] = match;
@@ -80,6 +80,7 @@ export default function ByteDatePicker({
   name,
   onBlur,
   error,
+  className = "",
   children,
 }: DatePickerProps) {
   const today = new Date();
@@ -103,6 +104,7 @@ export default function ByteDatePicker({
   const min = normalizeToDate(minDate);
   const max = normalizeToDate(maxDate);
 
+  // Call onBlur when dropdown closes (click-away)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
@@ -112,6 +114,7 @@ export default function ByteDatePicker({
       ) {
         setIsOpen(false);
         setViewMode("months");
+        if (onBlur) onBlur();
       }
     };
     if (isOpen) {
@@ -122,7 +125,7 @@ export default function ByteDatePicker({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, onBlur]);
 
   useEffect(() => {
     const newDate = normalizeToDate(value ?? undefined) ?? null;
@@ -149,7 +152,6 @@ export default function ByteDatePicker({
     return true;
   };
 
-  // Add validation handling
   const handleChange = (newDate: Date | null) => {
     if (required && !newDate) {
       return;
@@ -223,10 +225,13 @@ export default function ByteDatePicker({
   };
 
   return (
-    <div className="datepicker-container" ref={containerRef}>
+    <div
+      className={`datepicker-container${className ? " " + className : ""}`}
+      ref={containerRef}
+    >
       {!hideInput ? (
         <div
-          className="datepicker-input"
+          className={`datepicker-input${error ? " invalid" : ""}`}
           onClick={() => !disabled && setIsOpen(!isOpen)}
         >
           <input

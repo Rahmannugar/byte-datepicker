@@ -21,14 +21,6 @@ A lightweight, elegant, and highly customizable React datepicker component with 
 - 🧩 **Custom Input Support** - Use your own input/button with full control
 - 🗓️ **Display Formatting** - Easily control how the date is displayed
 
-### Month/Year Picker Mode
-
-![Month Year Picker](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/month-year-picker.png)
-
-### Full Date Picker Mode
-
-![Full Date Picker](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/full-date-picker.png)
-
 ## 🚀 Installation
 
 ```bash
@@ -230,9 +222,35 @@ function LimitedRangePicker() {
 | `name`         | `string`                       | `undefined`     | Input name for form submission                        |
 | `onBlur`       | `() => void`                   | `undefined`     | Called when the input loses focus                     |
 | `error`        | `boolean`                      | `false`         | Whether the field has a validation error              |
+| `className`    | `string`                       | `""`            | Custom class for the container                        |
 | `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input                          |
 
----
+### `className` Prop
+
+You can use the `className` prop to add your own custom CSS class to the outer container of the datepicker.  
+This is useful for applying custom styles, layout, or integrating with CSS frameworks like Tailwind.
+
+**Example:**
+
+```tsx
+<ByteDatePicker
+  value={date}
+  onChange={setDate}
+  className="my-datepicker-custom-class"
+  placeholder="Pick a date"
+/>
+```
+
+This will render:
+
+```html
+<div class="datepicker-container my-datepicker-custom-class">...</div>
+```
+
+You can then target `.my-datepicker-custom-class` in your CSS to style the datepicker container as needed.
+
+**Tip:**  
+Combine `className` with your own styles for spacing, alignment, or other customizations.
 
 ## 🗓️ Accepted Date Formats
 
@@ -254,8 +272,6 @@ You can pass a `Date` object, an ISO string (`"YYYY-MM-DD"`), or a date string t
 - Short or ambiguous formats like `"jun 25"` or `"25/1/2019"` may not work reliably in all browsers.
 - For best results, use ISO strings (`"YYYY-MM-DD"`), full month names with year (`"June 2025"`), or `Date` objects.
 
----
-
 ## 🎨 Styling
 
 **Important:** You must import the CSS file for the component to display correctly:
@@ -269,11 +285,8 @@ import "byte-datepicker/styles.css";
 The component uses CSS classes that you can easily override. Here are the main classes:
 
 ```css
-/* Main container */
 .datepicker-container {
 }
-
-/* Input field */
 .datepicker-input {
 }
 .datepicker-input:hover {
@@ -282,14 +295,10 @@ The component uses CSS classes that you can easily override. Here are the main c
 }
 .datepicker-input.disabled {
 }
-
-/* Dropdown */
 .datepicker-dropdown {
 }
 .datepicker-overlay {
 }
-
-/* Buttons */
 .month-button {
 }
 .month-button.selected {
@@ -529,14 +538,3 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 - Built with ❤️ by [Rahman Nugar](https://github.com/Rahmannugar)
 - Inspired by the need for a simple, customizable React datepicker
-
-## 🔗 Links
-
-- [GitHub Repository](https://github.com/Rahmannugar/byte-datepicker)
-- [npm Package](https://www.npmjs.com/package/byte-datepicker)
-- [Issues](https://github.com/Rahmannugar/byte-datepicker/issues)
-- [Pull Requests](https://github.com/Rahmannugar/byte-datepicker/pulls)
-
----
-
-**Star ⭐ the repo if you find it useful!**
