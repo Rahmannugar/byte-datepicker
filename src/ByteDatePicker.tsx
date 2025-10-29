@@ -51,8 +51,15 @@ const getFirstDayOfMonth = (year: number, month: number) =>
 function formatDateByString(date: Date, format: string): string {
   const yyyy = date.getFullYear().toString();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const mmm = shortMonthNames[date.getMonth()];
+  const monthFull = monthNames[date.getMonth()];
   const dd = String(date.getDate()).padStart(2, "0");
-  return format.replace(/yyyy/g, yyyy).replace(/mm/g, mm).replace(/dd/g, dd);
+  return format
+    .replace(/yyyy/gi, yyyy)
+    .replace(/mmm/gi, mmm)
+    .replace(/mm/gi, mm)
+    .replace(/month/gi, monthFull)
+    .replace(/dd/gi, dd);
 }
 
 function normalizeToDate(val?: Date | string): Date | undefined {
