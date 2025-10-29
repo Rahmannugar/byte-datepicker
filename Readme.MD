@@ -205,6 +205,31 @@ function LimitedRangePicker() {
 
 - Dates outside the range will be disabled in the picker.
 
+### Year Only Picker
+
+For scenarios where you only want users to select a year (e.g., graduation year, manufacturing year):
+
+```tsx
+import ByteDatePicker from "byte-datepicker";
+import "byte-datepicker/styles.css";
+
+function YearOnlyPicker() {
+  const [year, setYear] = useState<Date | null>(null);
+
+  return (
+    <ByteDatePicker
+      value={year}
+      onChange={setYear}
+      yearOnly={true}
+      placeholder="Select year"
+    />
+  );
+}
+```
+
+- Set `yearOnly={true}` to show only the year selection grid.
+- The selected value will be a `Date` object with January 1st of the selected year.
+
 ## 📋 Props
 
 | Prop           | Type                           | Default         | Description                                           |
@@ -224,6 +249,7 @@ function LimitedRangePicker() {
 | `error`        | `boolean`                      | `false`         | Whether the field has a validation error              |
 | `className`    | `string`                       | `""`            | Custom class for the container                        |
 | `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input                          |
+| `yearOnly`     | `boolean`                      | `false`         | Show only year selection grid                         |
 
 ### `className` Prop
 

@@ -16,6 +16,7 @@ interface DatePickerProps {
   onBlur?: () => void;
   error?: boolean;
   className?: string;
+  yearOnly?: boolean;
   children?: (props: {
     open: () => void;
     isOpen: boolean;
@@ -81,6 +82,7 @@ export default function ByteDatePicker({
   onBlur,
   error,
   className = "",
+  yearOnly = false,
   children,
 }: DatePickerProps) {
   const today = new Date();
@@ -96,7 +98,7 @@ export default function ByteDatePicker({
   );
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"days" | "months" | "years">(
-    includeDays ? "days" : "months"
+    yearOnly ? "years" : includeDays ? "days" : "months"
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -181,7 +183,14 @@ export default function ByteDatePicker({
 
   const handleYearSelect = (year: number) => {
     setCurrentYear(year);
-    setViewMode("months");
+    if (yearOnly) {
+      const newDate = new Date(year, 0, 1);
+      if (!isDateInRange(newDate)) return;
+      handleChange(newDate);
+      setIsOpen(false);
+    } else {
+      setViewMode("months");
+    }
   };
 
   const navigateYear = (direction: "prev" | "next") => {
@@ -223,6 +232,10 @@ export default function ByteDatePicker({
   const open = () => {
     if (!disabled) setIsOpen(true);
   };
+
+  useEffect(() => {
+    if (yearOnly) setViewMode("years");
+  }, [yearOnly]);
 
   return (
     <div
@@ -279,7 +292,59 @@ export default function ByteDatePicker({
               ref={dropdownRef}
               onClick={(e) => e.stopPropagation()}
             >
-              {viewMode === "months" && (
+              {/* Only show years if yearOnly is true */}
+              {viewMode === "years" && (
+                <>
+                  <div className="datepicker-header">
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateYear("prev")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="15,18 9,12 15,6" />
+                      </svg>
+                    </button>
+                    <span className="year-range-title">
+                      {yearRange[0]} - {yearRange[yearRange.length - 1]}
+                    </span>
+                    <button
+                      className="nav-button"
+                      onClick={() => navigateYear("next")}
+                    >
+                      <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <polyline points="9,18 15,12 9,6" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="year-grid">
+                    {yearRange.map((year) => {
+                      const yearDate = new Date(year, 0, 1);
+                      const isDisabled = !isDateInRange(yearDate);
+                      return (
+                        <button
+                          key={year}
+                          className={`year-button ${
+                            year === currentYear ? "current" : ""
+                          }`}
+                          onClick={() => handleYearSelect(year)}
+                          disabled={isDisabled}
+                          style={
+                            isDisabled
+                              ? { opacity: 0.5, cursor: "not-allowed" }
+                              : {}
+                          }
+                        >
+                          {year}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {/* Hide months/days if yearOnly */}
+              {!yearOnly && viewMode === "months" && (
                 <>
                   <div className="datepicker-header">
                     <button
@@ -335,57 +400,7 @@ export default function ByteDatePicker({
                 </>
               )}
 
-              {viewMode === "years" && (
-                <>
-                  <div className="datepicker-header">
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateYear("prev")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="15,18 9,12 15,6" />
-                      </svg>
-                    </button>
-                    <span className="year-range-title">
-                      {yearRange[0]} - {yearRange[yearRange.length - 1]}
-                    </span>
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateYear("next")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="9,18 15,12 9,6" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="year-grid">
-                    {yearRange.map((year) => {
-                      const yearDate = new Date(year, 0, 1);
-                      const isDisabled = !isDateInRange(yearDate);
-                      return (
-                        <button
-                          key={year}
-                          className={`year-button ${
-                            year === currentYear ? "current" : ""
-                          }`}
-                          onClick={() => handleYearSelect(year)}
-                          disabled={isDisabled}
-                          style={
-                            isDisabled
-                              ? { opacity: 0.5, cursor: "not-allowed" }
-                              : {}
-                          }
-                        >
-                          {year}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {viewMode === "days" && (
+              {!yearOnly && viewMode === "days" && (
                 <>
                   <div className="datepicker-header">
                     <button
