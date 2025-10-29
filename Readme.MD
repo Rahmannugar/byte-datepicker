@@ -19,7 +19,7 @@ A lightweight, elegant, and highly customizable React datepicker component with 
 - ⚡ **Modern** - Built with TypeScript and modern React patterns
 - 🎭 **Beautiful UI** - Clean, modern interface with smooth animations
 - 🧩 **Custom Input Support** - Use your own input/button with full control
-- 🗓️ **Display Formatting** - Easily control how the date is displayed
+- 🗓️ **Display Formatting** - Easily control how the date is displayed with flexible format tokens
 
 ## 🚀 Installation
 
@@ -138,11 +138,20 @@ function CustomInputExample() {
 
 - `hideInput` hides the default input.
 - Use the `children` render prop to provide your own input or button.
-- `formattedValue` is automatically formatted using `formatString` (e.g., `"dd-mm-yyyy"`, `"yyyy/mm/dd"`, etc.).
+- `formattedValue` is automatically formatted using `formatString`.
 
 ### Custom Display Formatting
 
-You can control how the date is displayed in the input (default or custom) using the `formatString` prop:
+You can control how the date is displayed in the input (default or custom) using the `formatString` prop.  
+**Supported tokens (case-insensitive):**
+
+- `dd` – day (e.g., `05`)
+- `mm` – numeric month (e.g., `08`)
+- `mmm` – short month name (e.g., `Aug`)
+- `month` – full month name (e.g., `August`)
+- `yyyy` – year (e.g., `2025`)
+
+**Examples:**
 
 ```tsx
 <ByteDatePicker
@@ -155,7 +164,19 @@ You can control how the date is displayed in the input (default or custom) using
   onChange={setDate}
   formatString="dd-mm-yyyy" // e.g., 14-08-2025
 />
+<ByteDatePicker
+  value={date}
+  onChange={setDate}
+  formatString="mmm yyyy" // e.g., Aug 2025
+/>
+<ByteDatePicker
+  value={date}
+  onChange={setDate}
+  formatString="month yyyy" // e.g., August 2025
+/>
 ```
+
+> **Note:** Format tokens are case-insensitive (`mmm`, `MMM`, `mm`, `MM`, etc. all work).
 
 ### Controlled Component
 
@@ -194,8 +215,8 @@ function LimitedRangePicker() {
     <ByteDatePicker
       value={date}
       onChange={setDate}
-      minDate="2020-01-01" // or new Date(2020, 0, 1) which returns Jan 1, 2020
-      maxDate="2030-12-31" // or new Date(2030, 11, 31) which returns Dec 31, 2030
+      minDate="2020-01-01" // or new Date(2020, 0, 1)
+      maxDate="2030-12-31" // or new Date(2030, 11, 31)
       placeholder="Pick a date within range"
       includeDays={true}
     />
@@ -222,6 +243,7 @@ function YearOnlyPicker() {
       onChange={setYear}
       yearOnly={true}
       placeholder="Select year"
+      formatString="yyyy" // Only show year in input
     />
   );
 }
@@ -241,7 +263,7 @@ function YearOnlyPicker() {
 | `includeDays`  | `boolean`                      | `false`         | Whether to show day selection (full date picker mode) |
 | `minDate`      | `Date \| string`               | `undefined`     | Minimum selectable date                               |
 | `maxDate`      | `Date \| string`               | `undefined`     | Maximum selectable date                               |
-| `formatString` | `string`                       | `undefined`     | Controls how the date is displayed                    |
+| `formatString` | `string`                       | `undefined`     | Controls how the date is displayed (see tokens above) |
 | `hideInput`    | `boolean`                      | `false`         | Hide the default input and use custom input           |
 | `required`     | `boolean`                      | `false`         | Makes the field required for form validation          |
 | `name`         | `string`                       | `undefined`     | Input name for form submission                        |
@@ -255,8 +277,6 @@ function YearOnlyPicker() {
 
 You can use the `className` prop to add your own custom CSS class to the outer container of the datepicker.  
 This is useful for applying custom styles, layout.
-
-Note: It doesn't integrate with CSS frameworks like Tailwind.
 
 **Example:**
 
@@ -276,9 +296,6 @@ This will render:
 ```
 
 You can then target `.my-datepicker-custom-class` in your CSS to style the datepicker container as needed.
-
-**Tip:**  
-Combine `className` with your own styles for spacing, alignment, or other customizations.
 
 ## 🗓️ Accepted Date Formats
 
