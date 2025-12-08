@@ -74,6 +74,10 @@ function normalizeToDate(val?: Date | string): Date | undefined {
   return isNaN(parsed.getTime()) ? undefined : parsed;
 }
 
+function normalizeToStartOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 export default function ByteDatePicker({
   value,
   onChange,
@@ -110,8 +114,13 @@ export default function ByteDatePicker({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const min = normalizeToDate(minDate);
-  const max = normalizeToDate(maxDate);
+
+  const min = minDate
+    ? normalizeToStartOfDay(normalizeToDate(minDate)!)
+    : undefined;
+  const max = maxDate
+    ? normalizeToStartOfDay(normalizeToDate(maxDate)!)
+    : undefined;
 
   // Call onBlur when dropdown closes (click-away)
   useEffect(() => {
@@ -156,8 +165,33 @@ export default function ByteDatePicker({
   };
 
   const isDateInRange = (date: Date) => {
-    if (min && date < min) return false;
-    if (max && date > max) return false;
+    const normalizedDate = normalizeToStartOfDay(date);
+    if (min && normalizedDate < min) return false;
+    if (max && normalizedDate > max) return false;
+    return true;
+  };
+
+  const isMonthInRange = (year: number, month: number) => {
+    if (!min && !max) return true;
+
+    const firstDay = normalizeToStartOfDay(new Date(year, month, 1));
+    const lastDay = normalizeToStartOfDay(new Date(year, month + 1, 0));
+
+    if (min && lastDay < min) return false;
+    if (max && firstDay > max) return false;
+
+    return true;
+  };
+
+  const isYearInRange = (year: number) => {
+    if (!min && !max) return true;
+
+    const firstDay = normalizeToStartOfDay(new Date(year, 0, 1));
+    const lastDay = normalizeToStartOfDay(new Date(year, 11, 31));
+
+    if (min && lastDay < min) return false;
+    if (max && firstDay > max) return false;
+
     return true;
   };
 
@@ -326,8 +360,7 @@ export default function ByteDatePicker({
 
                   <div className="year-grid">
                     {yearRange.map((year) => {
-                      const yearDate = new Date(year, 0, 1);
-                      const isDisabled = !isDateInRange(yearDate);
+                      const isDisabled = !isYearInRange(year);
                       return (
                         <button
                           key={year}
@@ -380,8 +413,7 @@ export default function ByteDatePicker({
 
                   <div className="month-grid">
                     {monthNames.map((month, index) => {
-                      const monthDate = new Date(currentYear, index, 1);
-                      const isDisabled = !isDateInRange(monthDate);
+                      const isDisabled = !isMonthInRange(currentYear, index);
                       return (
                         <button
                           key={month}
