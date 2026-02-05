@@ -1,128 +1,62 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { DatePickerProps } from "./types";
+import { useDatePicker } from "./hooks/useDatePicker";
+import { 
+  monthNames, 
+  formatDateByString, 
+  isDateInRange, 
+  isMonthInRange 
+} from "./utils/dateUtils";
+import { DatePickerInput } from "./components/DatePickerInput";
+import { CalendarHeader } from "./components/CalendarHeader";
+import { DayGrid } from "./components/DayGrid";
+import { MonthGrid } from "./components/MonthGrid";
+import { YearGrid } from "./components/YearGrid";
 
-interface DatePickerProps {
-  value?: Date | string | null;
-  onChange?: (value: Date | null) => void;
-  placeholder?: string;
-  disabled?: boolean;
-  includeDays?: boolean;
-  minDate?: Date | string;
-  maxDate?: Date | string;
-  formatString?: string;
-  hideInput?: boolean;
-  required?: boolean;
-  name?: string;
-  onBlur?: () => void;
-  error?: boolean;
-  className?: string;
-  yearOnly?: boolean;
-  children?: (props: {
-    open: () => void;
-    isOpen: boolean;
-    selectedDate: Date | null;
-    formattedValue: string;
-  }) => React.ReactNode;
-}
+export default function ByteDatePicker(props: DatePickerProps) {
+  const {
+    placeholder = "Select Date",
+    disabled = false,
+    includeDays = false,
+    formatString,
+    hideInput = false,
+    required = false,
+    name,
+    onBlur,
+    error,
+    className = "",
+    yearOnly = false,
+    theme = "light",
+    clearable = false,
+    children,
+  } = props;
 
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-const shortMonthNames = monthNames.map((month) => month.slice(0, 3));
-const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const getDaysInMonth = (year: number, month: number) =>
-  new Date(year, month + 1, 0).getDate();
-
-const getFirstDayOfMonth = (year: number, month: number) =>
-  new Date(year, month, 1).getDay();
-
-function formatDateByString(date: Date, format: string): string {
-  const yyyy = date.getFullYear().toString();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const mmm = shortMonthNames[date.getMonth()];
-  const monthFull = monthNames[date.getMonth()];
-  const dd = String(date.getDate()).padStart(2, "0");
-  return format
-    .replace(/yyyy/gi, yyyy)
-    .replace(/mmm/gi, mmm)
-    .replace(/mm/gi, mm)
-    .replace(/month/gi, monthFull)
-    .replace(/dd/gi, dd);
-}
-
-function normalizeToDate(val?: Date | string): Date | undefined {
-  if (!val) return undefined;
-  if (val instanceof Date) return val;
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(val);
-  if (match) {
-    const [_, year, month, day] = match;
-    return new Date(Number(year), Number(month) - 1, Number(day));
-  }
-  const parsed = new Date(val);
-  return isNaN(parsed.getTime()) ? undefined : parsed;
-}
-
-function normalizeToStartOfDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-export default function ByteDatePicker({
-  value,
-  onChange,
-  placeholder = "Select Date",
-  disabled = false,
-  includeDays = false,
-  minDate,
-  maxDate,
-  formatString,
-  hideInput = false,
-  required = false,
-  name,
-  onBlur,
-  error,
-  className = "",
-  yearOnly = false,
-  children,
-}: DatePickerProps) {
-  const today = new Date();
-  const normalizedValue = normalizeToDate(value ?? undefined) ?? null;
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    normalizedValue
-  );
-  const [currentYear, setCurrentYear] = useState(
-    normalizedValue?.getFullYear() || today.getFullYear()
-  );
-  const [currentMonth, setCurrentMonth] = useState(
-    normalizedValue?.getMonth() || today.getMonth()
-  );
-  const [isOpen, setIsOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"days" | "months" | "years">(
-    yearOnly ? "years" : includeDays ? "days" : "months"
-  );
+  const {
+    selectedDate,
+    currentYear,
+    setCurrentYear,
+    currentMonth,
+    setCurrentMonth,
+    isOpen,
+    setIsOpen,
+    viewMode,
+    setViewMode,
+    min,
+    max,
+    handleChange,
+    toggleOpen,
+    close,
+    clear,
+  } = useDatePicker(props);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const min = minDate
-    ? normalizeToStartOfDay(normalizeToDate(minDate)!)
-    : undefined;
-  const max = maxDate
-    ? normalizeToStartOfDay(normalizeToDate(maxDate)!)
-    : undefined;
+  const isDarkMode = 
+    theme === "dark" || 
+    (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-  // Call onBlur when dropdown closes (click-away)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
@@ -130,11 +64,11 @@ export default function ByteDatePicker({
         !containerRef.current?.contains(target) &&
         !dropdownRef.current?.contains(target)
       ) {
-        setIsOpen(false);
-        setViewMode("months");
+        close();
         if (onBlur) onBlur();
       }
     };
+
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       document.addEventListener("touchstart", handleClickOutside);
@@ -143,18 +77,7 @@ export default function ByteDatePicker({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [isOpen, onBlur]);
-
-  useEffect(() => {
-    const newDate = normalizeToDate(value ?? undefined) ?? null;
-    setSelectedDate(newDate);
-    if (newDate) {
-      setCurrentYear(newDate.getFullYear());
-      setCurrentMonth(newDate.getMonth());
-    }
-  }, [value]);
-
-  const yearRange = Array.from({ length: 20 }, (_, i) => currentYear - 10 + i);
+  }, [isOpen, onBlur, close]);
 
   const formatDisplay = (date: Date | null) => {
     if (!date) return "";
@@ -164,50 +87,11 @@ export default function ByteDatePicker({
       : `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   };
 
-  const isDateInRange = (date: Date) => {
-    const normalizedDate = normalizeToStartOfDay(date);
-    if (min && normalizedDate < min) return false;
-    if (max && normalizedDate > max) return false;
-    return true;
-  };
-
-  const isMonthInRange = (year: number, month: number) => {
-    if (!min && !max) return true;
-
-    const firstDay = normalizeToStartOfDay(new Date(year, month, 1));
-    const lastDay = normalizeToStartOfDay(new Date(year, month + 1, 0));
-
-    if (min && lastDay < min) return false;
-    if (max && firstDay > max) return false;
-
-    return true;
-  };
-
-  const isYearInRange = (year: number) => {
-    if (!min && !max) return true;
-
-    const firstDay = normalizeToStartOfDay(new Date(year, 0, 1));
-    const lastDay = normalizeToStartOfDay(new Date(year, 11, 31));
-
-    if (min && lastDay < min) return false;
-    if (max && firstDay > max) return false;
-
-    return true;
-  };
-
-  const handleChange = (newDate: Date | null) => {
-    if (required && !newDate) {
-      return;
-    }
-    onChange?.(newDate);
-  };
-
   const handleDaySelect = (day: number) => {
     const newDate = new Date(currentYear, currentMonth, day);
-    if (!isDateInRange(newDate)) return;
+    if (!isDateInRange(newDate, min, max)) return;
     handleChange(newDate);
     setIsOpen(false);
-    setViewMode(includeDays ? "days" : "months");
   };
 
   const handleMonthSelect = (monthIndex: number) => {
@@ -216,7 +100,7 @@ export default function ByteDatePicker({
       setViewMode("days");
     } else {
       const newDate = new Date(currentYear, monthIndex, 1);
-      if (!isDateInRange(newDate)) return;
+      if (!isDateInRange(newDate, min, max)) return;
       handleChange(newDate);
       setIsOpen(false);
     }
@@ -226,7 +110,7 @@ export default function ByteDatePicker({
     setCurrentYear(year);
     if (yearOnly) {
       const newDate = new Date(year, 0, 1);
-      if (!isDateInRange(newDate)) return;
+      if (!isDateInRange(newDate, min, max)) return;
       handleChange(newDate);
       setIsOpen(false);
     } else {
@@ -234,289 +118,111 @@ export default function ByteDatePicker({
     }
   };
 
-  const navigateYear = (direction: "prev" | "next") => {
-    const increment = viewMode === "years" ? 20 : 1;
-    setCurrentYear(
-      (prev) => prev + (direction === "prev" ? -increment : increment)
-    );
-  };
-
-  const navigateMonth = (direction: "prev" | "next") => {
-    if (direction === "next") {
-      currentMonth === 11
-        ? (setCurrentMonth(0), setCurrentYear((prev) => prev + 1))
-        : setCurrentMonth((prev) => prev + 1);
+  const navigate = (direction: "prev" | "next") => {
+    const step = direction === "prev" ? -1 : 1;
+    
+    if (viewMode === "years") {
+      setCurrentYear(prev => prev + (step * 20));
+    } else if (viewMode === "months") {
+      setCurrentYear(prev => prev + step);
     } else {
-      currentMonth === 0
-        ? (setCurrentMonth(11), setCurrentYear((prev) => prev - 1))
-        : setCurrentMonth((prev) => prev - 1);
+      const newMonth = currentMonth + step;
+      if (newMonth > 11) {
+        setCurrentMonth(0);
+        setCurrentYear(prev => prev + 1);
+      } else if (newMonth < 0) {
+        setCurrentMonth(11);
+        setCurrentYear(prev => prev - 1);
+      } else {
+        setCurrentMonth(newMonth);
+      }
     }
   };
 
-  const isCurrentMonth = (monthIndex: number) =>
-    monthIndex === today.getMonth() && currentYear === today.getFullYear();
+  const renderDropdown = () => {
+    let headerTitle = "";
+    let content = null;
 
-  const isSelected = (monthIndex: number) =>
-    selectedDate?.getMonth() === monthIndex &&
-    selectedDate?.getFullYear() === currentYear;
+    if (viewMode === "years") {
+      headerTitle = `${currentYear - 10} - ${currentYear + 9}`;
+      content = <YearGrid currentYear={currentYear} min={min} max={max} onSelect={handleYearSelect} />;
+    } else if (viewMode === "months") {
+      headerTitle = `${currentYear}`;
+      content = (
+        <MonthGrid 
+          currentYear={currentYear} 
+          selectedDate={selectedDate} 
+          min={min} 
+          max={max} 
+          onSelect={handleMonthSelect} 
+        />
+      );
+    } else {
+      headerTitle = `${monthNames[currentMonth]} ${currentYear}`;
+      content = (
+        <DayGrid 
+          currentYear={currentYear} 
+          currentMonth={currentMonth} 
+          selectedDate={selectedDate} 
+          min={min} 
+          max={max} 
+          onSelect={handleDaySelect} 
+        />
+      );
+    }
 
-  const isSelectedDay = (day: number) =>
-    selectedDate?.getDate() === day &&
-    selectedDate?.getMonth() === currentMonth &&
-    selectedDate?.getFullYear() === currentYear;
-
-  const isToday = (day: number) =>
-    today.getDate() === day &&
-    today.getMonth() === currentMonth &&
-    today.getFullYear() === currentYear;
-
-  const open = () => {
-    if (!disabled) setIsOpen(true);
+    return (
+      <>
+        <div className="datepicker-overlay" onClick={close} />
+        <div 
+          className="datepicker-dropdown" 
+          ref={dropdownRef} 
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CalendarHeader 
+            title={headerTitle}
+            onPrev={() => navigate("prev")}
+            onNext={() => navigate("next")}
+            onTitleClick={() => !yearOnly && setViewMode(viewMode === "days" ? "months" : "years")}
+          />
+          {content}
+        </div>
+      </>
+    );
   };
 
-  useEffect(() => {
-    if (yearOnly) setViewMode("years");
-  }, [yearOnly]);
+  const formattedValue = formatDisplay(selectedDate);
 
   return (
-    <div
-      className={`datepicker-container${className ? " " + className : ""}`}
+    <div 
+      className={`datepicker-container ${className} ${isDarkMode ? "byte-dark" : ""}`} 
       ref={containerRef}
     >
       {!hideInput ? (
-        <div
-          className={`datepicker-input${error ? " invalid" : ""}`}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
-        >
-          <input
-            type="hidden"
-            name={name}
-            value={selectedDate?.toISOString() || ""}
-            required={required}
-            onBlur={onBlur}
-            aria-invalid={error}
-          />
-          <span className={selectedDate ? "selected" : "placeholder"}>
-            {selectedDate ? formatDisplay(selectedDate) : placeholder}
-            {required && !selectedDate && " *"}
-          </span>
-          <svg
-            className="datepicker-icon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-          >
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-        </div>
+        <DatePickerInput 
+          label={formattedValue}
+          placeholder={placeholder}
+          isOpen={isOpen}
+          disabled={disabled}
+          error={error}
+          required={required}
+          name={name}
+          value={selectedDate?.toISOString() || ""}
+          onClick={toggleOpen}
+          onClear={clear}
+          clearable={clearable}
+          onBlur={onBlur}
+        />
       ) : (
-        children &&
-        children({
-          open,
+        children && children({
+          open: () => !disabled && setIsOpen(true),
           isOpen,
           selectedDate,
-          formattedValue: formatDisplay(selectedDate),
+          formattedValue,
+          clear
         })
       )}
-      {isOpen &&
-        createPortal(
-          <>
-            <div
-              className="datepicker-overlay"
-              onClick={() => setIsOpen(false)}
-            />
-            <div
-              className="datepicker-dropdown"
-              ref={dropdownRef}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Only show years if yearOnly is true */}
-              {viewMode === "years" && (
-                <>
-                  <div className="datepicker-header">
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateYear("prev")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="15,18 9,12 15,6" />
-                      </svg>
-                    </button>
-                    <span className="year-range-title">
-                      {yearRange[0]} - {yearRange[yearRange.length - 1]}
-                    </span>
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateYear("next")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="9,18 15,12 9,6" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="year-grid">
-                    {yearRange.map((year) => {
-                      const isDisabled = !isYearInRange(year);
-                      return (
-                        <button
-                          key={year}
-                          className={`year-button ${
-                            year === currentYear ? "current" : ""
-                          }`}
-                          onClick={() => handleYearSelect(year)}
-                          disabled={isDisabled}
-                          style={
-                            isDisabled
-                              ? { opacity: 0.5, cursor: "not-allowed" }
-                              : {}
-                          }
-                        >
-                          {year}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {/* Hide months/days if yearOnly */}
-              {!yearOnly && viewMode === "months" && (
-                <>
-                  <div className="datepicker-header">
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateYear("prev")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="15,18 9,12 15,6" />
-                      </svg>
-                    </button>
-                    <button
-                      className="month-year-button"
-                      onClick={() => setViewMode("years")}
-                    >
-                      {currentYear}
-                    </button>
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateYear("next")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="9,18 15,12 9,6" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="month-grid">
-                    {monthNames.map((month, index) => {
-                      const isDisabled = !isMonthInRange(currentYear, index);
-                      return (
-                        <button
-                          key={month}
-                          className={`month-button ${
-                            isCurrentMonth(index) ? "current" : ""
-                          } ${isSelected(index) ? "selected" : ""}`}
-                          onClick={() => handleMonthSelect(index)}
-                          disabled={isDisabled}
-                          style={
-                            isDisabled
-                              ? { opacity: 0.5, cursor: "not-allowed" }
-                              : {}
-                          }
-                        >
-                          <span className="month-name">{month}</span>
-                          <span className="month-short">
-                            {shortMonthNames[index]}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {!yearOnly && viewMode === "days" && (
-                <>
-                  <div className="datepicker-header">
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateMonth("prev")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="15,18 9,12 15,6" />
-                      </svg>
-                    </button>
-                    <button
-                      className="month-year-button"
-                      onClick={() => setViewMode("months")}
-                    >
-                      {monthNames[currentMonth]} {currentYear}
-                    </button>
-                    <button
-                      className="nav-button"
-                      onClick={() => navigateMonth("next")}
-                    >
-                      <svg viewBox="0 0 24 24" stroke="currentColor">
-                        <polyline points="9,18 15,12 9,6" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <div className="weekday-header">
-                    {weekDays.map((day) => (
-                      <div key={day} className="weekday">
-                        {day}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="day-grid">
-                    {Array.from(
-                      { length: getFirstDayOfMonth(currentYear, currentMonth) },
-                      (_, i) => (
-                        <div key={`empty-${i}`} className="day-cell empty" />
-                      )
-                    )}
-                    {Array.from(
-                      { length: getDaysInMonth(currentYear, currentMonth) },
-                      (_, i) => {
-                        const day = i + 1;
-                        const dayDate = new Date(
-                          currentYear,
-                          currentMonth,
-                          day
-                        );
-                        const isDisabled = !isDateInRange(dayDate);
-                        return (
-                          <button
-                            key={day}
-                            className={`day-cell ${
-                              isSelectedDay(day) ? "selected" : ""
-                            } ${isToday(day) ? "current" : ""}`}
-                            onClick={() => handleDaySelect(day)}
-                            disabled={isDisabled}
-                            style={
-                              isDisabled
-                                ? { opacity: 0.5, cursor: "not-allowed" }
-                                : {}
-                            }
-                          >
-                            {day}
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </>,
-          document.body
-        )}
+      {isOpen && createPortal(renderDropdown(), document.body)}
     </div>
   );
 }
