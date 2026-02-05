@@ -1,6 +1,8 @@
 # ByteDatePicker v2
 
-We've overhauled the entire library for v2. This includes a complete architectural refactor, a brand new design system, and improved developer experience.
+Byte Datepicker V2 is live.
+
+The new version includes a complete architectural refactor, a brand new design system, and improved developer experience.
 
 ## What's New in v2
 
@@ -69,8 +71,8 @@ pnpm add byte-datepicker
 
 ```tsx
 import React, { useState } from "react";
-import ByteDatePicker from "byte-datepicker";
-import "byte-datepicker/styles.css"; // Don't forget to import styles!
+import ByteDatePicker, { DatePickerProps } from "byte-datepicker";
+import "byte-datepicker/styles.css";
 
 function App() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);

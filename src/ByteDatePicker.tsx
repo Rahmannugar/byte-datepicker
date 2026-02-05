@@ -5,8 +5,7 @@ import { useDatePicker } from "./hooks/useDatePicker";
 import { 
   monthNames, 
   formatDateByString, 
-  isDateInRange, 
-  isMonthInRange 
+  isDateInRange
 } from "./utils/dateUtils";
 import { DatePickerInput } from "./components/DatePickerInput";
 import { CalendarHeader } from "./components/CalendarHeader";

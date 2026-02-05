@@ -32,15 +32,14 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./styles.css": "./dist/styles.css"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --no-splitting",
-    "build:css": "echo 'Remember to manually copy src/index.css to dist/styles.css'",
+    "build": "tsup src/index.ts --format cjs,esm --dts --no-splitting && cp src/index.css dist/styles.css",
     "dev": "vite",
     "prepublishOnly": "npm run build"
   },
