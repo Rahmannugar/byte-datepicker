@@ -1,5 +1,9 @@
 import React from "react";
-import { monthNames, shortMonthNames, isMonthInRange } from "../utils/dateUtils";
+import {
+  monthNames,
+  shortMonthNames,
+  isMonthInRange,
+} from "../utils/dateUtils";
 
 interface MonthGridProps {
   currentYear: number;
@@ -19,16 +23,19 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
   const today = new Date();
 
   return (
-    <div className="month-grid">
+    <div className="byte-grid-months">
       {monthNames.map((month, index) => {
         const disabled = !isMonthInRange(currentYear, index, min, max);
-        const isCurrent = index === today.getMonth() && currentYear === today.getFullYear();
-        const isSelected = selectedDate?.getMonth() === index && selectedDate?.getFullYear() === currentYear;
+        const isCurrent =
+          index === today.getMonth() && currentYear === today.getFullYear();
+        const isSelected =
+          selectedDate?.getMonth() === index &&
+          selectedDate?.getFullYear() === currentYear;
 
         return (
           <button
             key={month}
-            className={`month-button ${isCurrent ? "current" : ""} ${isSelected ? "selected" : ""}`}
+            className={`byte-cell byte-cell-lg ${isCurrent ? "today" : ""} ${isSelected ? "selected" : ""}`}
             onClick={() => onSelect(index)}
             disabled={disabled}
             type="button"

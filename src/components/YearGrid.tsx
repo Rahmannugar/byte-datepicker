@@ -18,7 +18,7 @@ export const YearGrid: React.FC<YearGridProps> = ({
   const yearRange = Array.from({ length: 20 }, (_, i) => currentYear - 10 + i);
 
   return (
-    <div className="year-grid">
+    <div className="byte-grid-years">
       {yearRange.map((year) => {
         const disabled = !isYearInRange(year, min, max);
         const isCurrent = year === today.getFullYear();
@@ -27,7 +27,7 @@ export const YearGrid: React.FC<YearGridProps> = ({
         return (
           <button
             key={year}
-            className={`year-button ${isCurrent ? "current" : ""} ${isSelected ? "selected" : ""}`}
+            className={`byte-cell byte-cell-lg ${isCurrent ? "today" : ""} ${isSelected ? "selected" : ""}`}
             onClick={() => onSelect(year)}
             disabled={disabled}
             type="button"

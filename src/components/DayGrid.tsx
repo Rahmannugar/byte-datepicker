@@ -1,5 +1,10 @@
 import React from "react";
-import { weekDays, getFirstDayOfMonth, getDaysInMonth, isDateInRange } from "../utils/dateUtils";
+import {
+  weekDays,
+  getFirstDayOfMonth,
+  getDaysInMonth,
+  isDateInRange,
+} from "../utils/dateUtils";
 
 interface DayGridProps {
   currentYear: number;
@@ -34,14 +39,16 @@ export const DayGrid: React.FC<DayGridProps> = ({
 
   return (
     <>
-      <div className="weekday-header">
+      <div className="byte-grid-days">
         {weekDays.map((day) => (
-          <div key={day} className="weekday">{day}</div>
+          <div key={day} className="byte-weekday">
+            {day}
+          </div>
         ))}
       </div>
-      <div className="day-grid">
+      <div className="byte-grid-days">
         {Array.from({ length: firstDay }, (_, i) => (
-          <div key={`empty-${i}`} className="day-cell empty" />
+          <div key={`empty-${i}`} className="byte-cell empty" />
         ))}
         {Array.from({ length: daysInMonth }, (_, i) => {
           const day = i + 1;
@@ -51,7 +58,7 @@ export const DayGrid: React.FC<DayGridProps> = ({
           return (
             <button
               key={day}
-              className={`day-cell ${isSelectedDay(day) ? "selected" : ""} ${isToday(day) ? "current" : ""}`}
+              className={`byte-cell ${isSelectedDay(day) ? "selected" : ""} ${isToday(day) ? "today" : ""}`}
               onClick={() => onSelect(day)}
               disabled={disabled}
               type="button"

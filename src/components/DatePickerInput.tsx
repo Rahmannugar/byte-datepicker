@@ -31,7 +31,7 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
 }) => {
   return (
     <div
-      className={`datepicker-input ${error ? "invalid" : ""} ${disabled ? "disabled" : ""}`}
+      className={`byte-input ${error ? "invalid" : ""} ${disabled ? "disabled" : ""}`}
       onClick={() => !disabled && onClick()}
       tabIndex={disabled ? -1 : 0}
       onKeyDown={(e) => {
@@ -52,10 +52,10 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
         {label || placeholder}
         {required && !label && " *"}
       </span>
-      <div className="datepicker-input-actions">
+      <div className="byte-input-actions">
         {clearable && label && !disabled && (
           <button
-            className="clear-button"
+            className="byte-clear-btn"
             onClick={(e) => {
               e.stopPropagation();
               onClear?.();
@@ -63,14 +63,19 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
             type="button"
             aria-label="Clear selection"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         )}
         <svg
-          className="datepicker-icon"
+          className="byte-icon"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

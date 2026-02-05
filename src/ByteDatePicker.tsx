@@ -2,10 +2,10 @@ import { useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { DatePickerProps } from "./types";
 import { useDatePicker } from "./hooks/useDatePicker";
-import { 
-  monthNames, 
-  formatDateByString, 
-  isDateInRange
+import {
+  monthNames,
+  formatDateByString,
+  isDateInRange,
 } from "./utils/dateUtils";
 import { DatePickerInput } from "./components/DatePickerInput";
 import { CalendarHeader } from "./components/CalendarHeader";
@@ -52,9 +52,11 @@ export default function ByteDatePicker(props: DatePickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isDarkMode = 
-    theme === "dark" || 
-    (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDarkMode =
+    theme === "dark" ||
+    (theme === "system" &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -119,19 +121,19 @@ export default function ByteDatePicker(props: DatePickerProps) {
 
   const navigate = (direction: "prev" | "next") => {
     const step = direction === "prev" ? -1 : 1;
-    
+
     if (viewMode === "years") {
-      setCurrentYear(prev => prev + (step * 20));
+      setCurrentYear((prev) => prev + step * 20);
     } else if (viewMode === "months") {
-      setCurrentYear(prev => prev + step);
+      setCurrentYear((prev) => prev + step);
     } else {
       const newMonth = currentMonth + step;
       if (newMonth > 11) {
         setCurrentMonth(0);
-        setCurrentYear(prev => prev + 1);
+        setCurrentYear((prev) => prev + 1);
       } else if (newMonth < 0) {
         setCurrentMonth(11);
-        setCurrentYear(prev => prev - 1);
+        setCurrentYear((prev) => prev - 1);
       } else {
         setCurrentMonth(newMonth);
       }
@@ -144,45 +146,54 @@ export default function ByteDatePicker(props: DatePickerProps) {
 
     if (viewMode === "years") {
       headerTitle = `${currentYear - 10} - ${currentYear + 9}`;
-      content = <YearGrid currentYear={currentYear} min={min} max={max} onSelect={handleYearSelect} />;
+      content = (
+        <YearGrid
+          currentYear={currentYear}
+          min={min}
+          max={max}
+          onSelect={handleYearSelect}
+        />
+      );
     } else if (viewMode === "months") {
       headerTitle = `${currentYear}`;
       content = (
-        <MonthGrid 
-          currentYear={currentYear} 
-          selectedDate={selectedDate} 
-          min={min} 
-          max={max} 
-          onSelect={handleMonthSelect} 
+        <MonthGrid
+          currentYear={currentYear}
+          selectedDate={selectedDate}
+          min={min}
+          max={max}
+          onSelect={handleMonthSelect}
         />
       );
     } else {
       headerTitle = `${monthNames[currentMonth]} ${currentYear}`;
       content = (
-        <DayGrid 
-          currentYear={currentYear} 
-          currentMonth={currentMonth} 
-          selectedDate={selectedDate} 
-          min={min} 
-          max={max} 
-          onSelect={handleDaySelect} 
+        <DayGrid
+          currentYear={currentYear}
+          currentMonth={currentMonth}
+          selectedDate={selectedDate}
+          min={min}
+          max={max}
+          onSelect={handleDaySelect}
         />
       );
     }
 
     return (
       <>
-        <div className="datepicker-overlay" onClick={close} />
-        <div 
-          className="datepicker-dropdown" 
-          ref={dropdownRef} 
+        <div className="byte-overlay" onClick={close} />
+        <div
+          className="byte-dropdown"
+          ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
         >
-          <CalendarHeader 
+          <CalendarHeader
             title={headerTitle}
             onPrev={() => navigate("prev")}
             onNext={() => navigate("next")}
-            onTitleClick={() => !yearOnly && setViewMode(viewMode === "days" ? "months" : "years")}
+            onTitleClick={() =>
+              !yearOnly && setViewMode(viewMode === "days" ? "months" : "years")
+            }
           />
           {content}
         </div>
@@ -193,12 +204,12 @@ export default function ByteDatePicker(props: DatePickerProps) {
   const formattedValue = formatDisplay(selectedDate);
 
   return (
-    <div 
-      className={`datepicker-container ${className} ${isDarkMode ? "byte-dark" : ""}`} 
+    <div
+      className={`byte-datepicker-container ${className} ${isDarkMode ? "byte-dark" : ""}`}
       ref={containerRef}
     >
       {!hideInput ? (
-        <DatePickerInput 
+        <DatePickerInput
           label={formattedValue}
           placeholder={placeholder}
           isOpen={isOpen}
@@ -213,12 +224,13 @@ export default function ByteDatePicker(props: DatePickerProps) {
           onBlur={onBlur}
         />
       ) : (
-        children && children({
+        children &&
+        children({
           open: () => !disabled && setIsOpen(true),
           isOpen,
           selectedDate,
           formattedValue,
-          clear
+          clear,
         })
       )}
       {isOpen && createPortal(renderDropdown(), document.body)}
