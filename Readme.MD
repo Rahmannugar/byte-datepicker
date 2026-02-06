@@ -36,7 +36,7 @@ v2 now supports dark mode out of the box with zero extra CSS.
 
 A lightweight, elegant, and highly customizable React datepicker component with support for both month/year and full date selection.
 
-[![npm version](https://badge.fury.io/js/byte-datepicker.svg)](https://badge.fury.io/js/byte-datepicker)
+[![npm version](https://img.shields.io/npm/v/byte-datepicker.svg?style=flat-square)](https://www.npmjs.com/package/byte-datepicker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 🎬 Demo
@@ -97,6 +97,8 @@ function App() {
 
 Perfect for date of birth, expiry dates, or when you only need month and year:
 
+![Month Year Picker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/month-year-demo.gif)
+
 ```tsx
 import ByteDatePicker from "byte-datepicker";
 import "byte-datepicker/styles.css";
@@ -118,6 +120,8 @@ function MonthYearPicker() {
 ### Full Date Picker with Days
 
 For complete date selection including days:
+
+![Full Date Picker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/full-date-demo.gif)
 
 ```tsx
 import ByteDatePicker from "byte-datepicker";
@@ -276,6 +280,8 @@ You can add a clear button to the input by setting the `clearable` prop to `true
 ### Year Only Picker
 
 For scenarios where you only want users to select a year (e.g., graduation year, manufacturing year):
+
+![Year Only Picker](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/year-selection.png)
 
 ```tsx
 import ByteDatePicker from "byte-datepicker";
