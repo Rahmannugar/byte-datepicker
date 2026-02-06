@@ -7,7 +7,7 @@ The new version includes a complete architectural refactor, a brand new design s
 ## What's New in v2
 
 ### 💎 Nova Cobalt Theme
-The old design is gone. v2 features a premium "Nova Cobalt" theme with:
+The old design is gone. v2 features a premium glossy theme with:
 - **Consistent Blue Palette**: Professional sapphire/cobalt accents.
 - **Glassmorphism**: Modern backdrop blur on overlays.
 - **Improved Typography**: Clean, modern sans-serif stack.
