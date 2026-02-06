@@ -1,3 +1,37 @@
+# ByteDatePicker v2
+
+Byte Datepicker V2 is live.
+
+The new version includes a complete architectural refactor, a brand new design system, and improved developer experience.
+
+## What's New in v2
+
+The old design is gone. v2.0.0 features a premium glossy theme with:
+
+- **Consistent Blue Palette**: Professional sapphire/cobalt accents.
+- **Glassmorphism**: Modern backdrop blur on overlays.
+- **Improved Typography**: Clean, modern sans-serif stack.
+
+### 🌑 Native Dark Mode
+
+v2 now supports dark mode out of the box with zero extra CSS.
+
+- Use the `theme` prop to toggle between `light`, `dark`, or `system` (follows user OS settings).
+- Fully variable-based styling for easy overrides.
+
+### Improved Selection Management
+
+- **One-Click Clear**: Added a `clearable` prop to quickly reset the date.
+- **Smart Hooks**: Core logic is now extracted into `useDatePicker`, allowing for easier integration.
+
+### Notes
+
+- **Updates**: Updated to latest React version.
+- **Improved Architecture**: Refactored to micromodules to prevent logic coupling in mega-components.
+- **Zero Dependencies(except React)**: Still zero external runtime dependencies outside of React
+
+---
+
 # Byte DatePicker
 
 A lightweight, elegant, and highly customizable React datepicker component with support for both month/year and full date selection.
@@ -11,17 +45,17 @@ A lightweight, elegant, and highly customizable React datepicker component with 
 
 ## ✨ Features
 
-- 🎯 **Lightweight** - Minimal dependencies, small bundle size
-- 🎨 **Highly Customizable** - Easy to style and theme
-- 📱 **Responsive** - Works great on mobile and desktop
-- ♿ **Accessible** - Built with accessibility in mind
-- 🗓️ **Flexible** - Month/year picker or full date picker modes
-- ⚡ **Modern** - Built with TypeScript and modern React patterns
-- 🎭 **Beautiful UI** - Clean, modern interface with smooth animations
-- 🧩 **Custom Input Support** - Use your own input/button with full control
-- 🗓️ **Display Formatting** - Easily control how the date is displayed with flexible format tokens
+- **Lightweight** - Minimal dependencies, small bundle size
+- **Highly Customizable** - Easy to style and theme
+- **Responsive** - Works great on mobile and desktop
+- **Accessible** - Built with accessibility in mind
+- **Flexible** - Month/year picker or full date picker modes
+- **Modern** - Built with TypeScript and modern React patterns
+- **Beautiful UI** - Clean, modern interface with smooth animations
+- **Custom Input Support** - Use your own input/button with full control
+- **Display Formatting** - Easily control how the date is displayed with flexible format tokens
 
-## 🚀 Installation
+## Installation
 
 ```bash
 npm install byte-datepicker
@@ -41,8 +75,8 @@ pnpm add byte-datepicker
 
 ```tsx
 import React, { useState } from "react";
-import ByteDatePicker from "byte-datepicker";
-import "byte-datepicker/styles.css"; // Don't forget to import styles!
+import ByteDatePicker, { DatePickerProps } from "byte-datepicker";
+import "byte-datepicker/styles.css";
 
 function App() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -128,7 +162,7 @@ function CustomInputExample() {
           value={formattedValue}
           placeholder="Pick a date"
           onClick={open}
-          className="border border-purple-600 rounded-lg px-4 py-2 text-lg focus:ring-2 focus:ring-purple-400"
+          className="border border-blue-600 rounded-lg px-4 py-2 text-lg focus:ring-2 focus:ring-blue-400"
         />
       )}
     </ByteDatePicker>
@@ -226,6 +260,19 @@ function LimitedRangePicker() {
 
 - Dates outside the range will be disabled in the picker.
 
+### Clearable Selection
+
+You can add a clear button to the input by setting the `clearable` prop to `true`:
+
+```tsx
+<ByteDatePicker
+  value={date}
+  onChange={setDate}
+  clearable={true}
+  placeholder="Select a date"
+/>
+```
+
 ### Year Only Picker
 
 For scenarios where you only want users to select a year (e.g., graduation year, manufacturing year):
@@ -254,24 +301,26 @@ function YearOnlyPicker() {
 
 ## 📋 Props
 
-| Prop           | Type                           | Default         | Description                                           |
-| -------------- | ------------------------------ | --------------- | ----------------------------------------------------- |
-| `value`        | `Date \| string \| null`       | `null`          | The currently selected date                           |
-| `onChange`     | `(date: Date \| null) => void` | `undefined`     | Callback function called when a date is selected      |
-| `placeholder`  | `string`                       | `"Select Date"` | Placeholder text shown when no date is selected       |
-| `disabled`     | `boolean`                      | `false`         | Whether the datepicker is disabled                    |
-| `includeDays`  | `boolean`                      | `false`         | Whether to show day selection (full date picker mode) |
-| `minDate`      | `Date \| string`               | `undefined`     | Minimum selectable date                               |
-| `maxDate`      | `Date \| string`               | `undefined`     | Maximum selectable date                               |
-| `formatString` | `string`                       | `undefined`     | Controls how the date is displayed (see tokens above) |
-| `hideInput`    | `boolean`                      | `false`         | Hide the default input and use custom input           |
-| `required`     | `boolean`                      | `false`         | Makes the field required for form validation          |
-| `name`         | `string`                       | `undefined`     | Input name for form submission                        |
-| `onBlur`       | `() => void`                   | `undefined`     | Called when the input loses focus                     |
-| `error`        | `boolean`                      | `false`         | Whether the field has a validation error              |
-| `className`    | `string`                       | `""`            | Custom class for the container                        |
-| `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input                          |
-| `yearOnly`     | `boolean`                      | `false`         | Show only year selection grid                         |
+| Prop           | Type                            | Default         | Description                                           |
+| -------------- | ------------------------------- | --------------- | ----------------------------------------------------- |
+| `value`        | `Date \| string \| null`        | `null`          | The currently selected date                           |
+| `onChange`     | `(date: Date \| null) => void`  | `undefined`     | Callback function called when a date is selected      |
+| `placeholder`  | `string`                        | `"Select Date"` | Placeholder text shown when no date is selected       |
+| `disabled`     | `boolean`                       | `false`         | Whether the datepicker is disabled                    |
+| `includeDays`  | `boolean`                       | `false`         | Whether to show day selection (full date picker mode) |
+| `minDate`      | `Date \| string`                | `undefined`     | Minimum selectable date                               |
+| `maxDate`      | `Date \| string`                | `undefined`     | Maximum selectable date                               |
+| `formatString` | `string`                        | `undefined`     | Controls how the date is displayed (see tokens above) |
+| `hideInput`    | `boolean`                       | `false`         | Hide the default input and use custom input           |
+| `required`     | `boolean`                       | `false`         | Makes the field required for form validation          |
+| `name`         | `string`                        | `undefined`     | Input name for form submission                        |
+| `onBlur`       | `() => void`                    | `undefined`     | Called when the input loses focus                     |
+| `error`        | `boolean`                       | `false`         | Whether the field has a validation error              |
+| `className`    | `string`                        | `""`            | Custom class for the container                        |
+| `theme`        | `'light' \| 'dark' \| 'system'` | `'light'`       | Toggles the UI theme                                  |
+| `clearable`    | `boolean`                       | `false`         | Shows a clear button in the input                     |
+| `children`     | `(props) => React.ReactNode`    | `undefined`     | Render prop for custom input (includes `clear`)       |
+| `yearOnly`     | `boolean`                       | `false`         | Show only year selection grid                         |
 
 ### `className` Prop
 
@@ -312,12 +361,12 @@ You can pass a `Date` object, an ISO string (`"YYYY-MM-DD"`), or a date string t
 <ByteDatePicker value="25 Jan 2019" onChange={setDate} />// Day, month, year
 ```
 
-**⚠️ Note:**
+**Note:**
 
 - Short or ambiguous formats like `"jun 25"` or `"25/1/2019"` may not work reliably in all browsers.
 - For best results, use ISO strings (`"YYYY-MM-DD"`), full month names with year (`"June 2025"`), or `Date` objects.
 
-## 🎨 Styling
+## Styling
 
 **Important:** You must import the CSS file for the component to display correctly:
 
@@ -330,33 +379,25 @@ import "byte-datepicker/styles.css";
 The component uses CSS classes that you can easily override. Here are the main classes:
 
 ```css
-.datepicker-container {
+.byte-datepicker-container {
 }
-.datepicker-input {
+.byte-input {
 }
-.datepicker-input:hover {
+.byte-input:hover {
 }
-.datepicker-input:focus-within {
+.byte-input.disabled {
 }
-.datepicker-input.disabled {
+.byte-dropdown {
 }
-.datepicker-dropdown {
+.byte-overlay {
 }
-.datepicker-overlay {
+.byte-cell {
 }
-.month-button {
+.byte-cell.selected {
 }
-.month-button.selected {
+.byte-cell.today {
 }
-.month-button.current {
-}
-.day-cell {
-}
-.day-cell.selected {
-}
-.year-button {
-}
-.year-button.current {
+.byte-cell-lg {
 }
 ```
 
@@ -367,35 +408,31 @@ The component uses CSS classes that you can easily override. Here are the main c
 
 ### Theme Customization
 
-Override the primary color:
+ByteDatePicker v2 is built with CSS variables, making it easy to create custom themes or override specific styles.
+
+#### Using the `theme` prop
+
+The easiest way to toggle between light and dark modes is via the `theme` prop:
+
+- `<ByteDatePicker theme="light" />` (Default)
+- `<ByteDatePicker theme="dark" />` - Forces dark mode.
+- `<ByteDatePicker theme="system" />` - Automatically follows user OS preference.
+
+#### Global Variable Overrides
+
+You can override colors, radii, and fonts globally in your CSS:
 
 ```css
-.month-button.selected,
-.day-cell.selected,
-.year-button.current,
-.month-year-button,
-.year-range-title {
-  background-color: #your-color !important;
+:root {
+  --byte-primary: #2563eb; /* Primary brand color */
+  --byte-radius-lg: 12px; /* Container corners */
+  --byte-font: "Inter", sans-serif;
 }
 
-.datepicker-input:focus-within {
-  border-color: #your-color !important;
-  box-shadow: 0 0 0 3px rgba(your-rgb-values, 0.1) !important;
-}
-```
-
-### Dark Mode Support
-
-```css
-[data-theme="dark"] .datepicker-input {
-  background-color: #1f2937;
-  border-color: #374151;
-  color: #f9fafb;
-}
-
-[data-theme="dark"] .datepicker-dropdown {
-  background-color: #1f2937;
-  border-color: #374151;
+/* Custom dark mode overrides */
+.byte-dark {
+  --byte-bg: #1e293b;
+  --byte-dropdown-bg: #0f172a;
 }
 ```
 
@@ -539,7 +576,7 @@ The datepicker supports:
 - Required field indication
 - Error state styling
 
-## 🚀 Development
+## Development
 
 Want to contribute? Great! Here's how to get started:
 
@@ -569,17 +606,17 @@ Byte DatePicker is designed to be lightweight:
 - **Zero runtime dependencies** (except React peer dependencies)
 - **Tree-shakeable**: Modern bundlers will only include what you use
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+2. Create your feature branch (`git switch -c feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with ❤️ by [Rahman Nugar](https://github.com/Rahmannugar)
 - Inspired by the need for a simple, customizable React datepicker
