@@ -7,21 +7,27 @@ The new version includes a complete architectural refactor, a brand new design s
 ## What's New in v2
 
 ### 💎 Nova Cobalt Theme
+
 The old design is gone. v2 features a premium glossy theme with:
+
 - **Consistent Blue Palette**: Professional sapphire/cobalt accents.
 - **Glassmorphism**: Modern backdrop blur on overlays.
 - **Improved Typography**: Clean, modern sans-serif stack.
 
 ### 🌑 Native Dark Mode
-v2 now supports dark mode out of the box with zero extra CSS. 
+
+v2 now supports dark mode out of the box with zero extra CSS.
+
 - Use the `theme` prop to toggle between `light`, `dark`, or `system` (follows user OS settings).
 - Fully variable-based styling for easy overrides.
 
 ### 🧹 Improved Selection Management
+
 - **One-Click Clear**: Added a `clearable` prop to quickly reset the date.
 - **Smart Hooks**: Core logic is now extracted into `useDatePicker`, allowing for easier integration.
 
-### ⚛️ Notes 
+### ⚛️ Notes
+
 - **Updates**: Updated to latest React version.
 - **Improved Architecture**: Refactored to micromodules to prevent logic coupling in mega-components.
 - **Zero Dependencies(except React)**: Still zero external runtime dependencies outside of React
@@ -297,26 +303,26 @@ function YearOnlyPicker() {
 
 ## 📋 Props
 
-| Prop           | Type                           | Default         | Description                                           |
-| -------------- | ------------------------------ | --------------- | ----------------------------------------------------- |
-| `value`        | `Date \| string \| null`       | `null`          | The currently selected date                           |
-| `onChange`     | `(date: Date \| null) => void` | `undefined`     | Callback function called when a date is selected      |
-| `placeholder`  | `string`                       | `"Select Date"` | Placeholder text shown when no date is selected       |
-| `disabled`     | `boolean`                      | `false`         | Whether the datepicker is disabled                    |
-| `includeDays`  | `boolean`                      | `false`         | Whether to show day selection (full date picker mode) |
-| `minDate`      | `Date \| string`               | `undefined`     | Minimum selectable date                               |
-| `maxDate`      | `Date \| string`               | `undefined`     | Maximum selectable date                               |
-| `formatString` | `string`                       | `undefined`     | Controls how the date is displayed (see tokens above) |
-| `hideInput`    | `boolean`                      | `false`         | Hide the default input and use custom input           |
-| `required`     | `boolean`                      | `false`         | Makes the field required for form validation          |
-| `name`         | `string`                       | `undefined`     | Input name for form submission                        |
-| `onBlur`       | `() => void`                   | `undefined`     | Called when the input loses focus                     |
-| `error`        | `boolean`                      | `false`         | Whether the field has a validation error              |
-| `className`    | `string`                       | `""`            | Custom class for the container                        |
-| `theme`        | `'light' \| 'dark' \| 'system'`| `'light'`       | Toggles the UI theme                                  |
-| `clearable`    | `boolean`                      | `false`         | Shows a clear button in the input                     |
-| `children`     | `(props) => React.ReactNode`   | `undefined`     | Render prop for custom input (includes `clear`)       |
-| `yearOnly`     | `boolean`                      | `false`         | Show only year selection grid                         |
+| Prop           | Type                            | Default         | Description                                           |
+| -------------- | ------------------------------- | --------------- | ----------------------------------------------------- |
+| `value`        | `Date \| string \| null`        | `null`          | The currently selected date                           |
+| `onChange`     | `(date: Date \| null) => void`  | `undefined`     | Callback function called when a date is selected      |
+| `placeholder`  | `string`                        | `"Select Date"` | Placeholder text shown when no date is selected       |
+| `disabled`     | `boolean`                       | `false`         | Whether the datepicker is disabled                    |
+| `includeDays`  | `boolean`                       | `false`         | Whether to show day selection (full date picker mode) |
+| `minDate`      | `Date \| string`                | `undefined`     | Minimum selectable date                               |
+| `maxDate`      | `Date \| string`                | `undefined`     | Maximum selectable date                               |
+| `formatString` | `string`                        | `undefined`     | Controls how the date is displayed (see tokens above) |
+| `hideInput`    | `boolean`                       | `false`         | Hide the default input and use custom input           |
+| `required`     | `boolean`                       | `false`         | Makes the field required for form validation          |
+| `name`         | `string`                        | `undefined`     | Input name for form submission                        |
+| `onBlur`       | `() => void`                    | `undefined`     | Called when the input loses focus                     |
+| `error`        | `boolean`                       | `false`         | Whether the field has a validation error              |
+| `className`    | `string`                        | `""`            | Custom class for the container                        |
+| `theme`        | `'light' \| 'dark' \| 'system'` | `'light'`       | Toggles the UI theme                                  |
+| `clearable`    | `boolean`                       | `false`         | Shows a clear button in the input                     |
+| `children`     | `(props) => React.ReactNode`    | `undefined`     | Render prop for custom input (includes `clear`)       |
+| `yearOnly`     | `boolean`                       | `false`         | Show only year selection grid                         |
 
 ### `className` Prop
 
@@ -375,33 +381,25 @@ import "byte-datepicker/styles.css";
 The component uses CSS classes that you can easily override. Here are the main classes:
 
 ```css
-.datepicker-container {
+.byte-datepicker-container {
 }
-.datepicker-input {
+.byte-input {
 }
-.datepicker-input:hover {
+.byte-input:hover {
 }
-.datepicker-input:focus-within {
+.byte-input.disabled {
 }
-.datepicker-input.disabled {
+.byte-dropdown {
 }
-.datepicker-dropdown {
+.byte-overlay {
 }
-.datepicker-overlay {
+.byte-cell {
 }
-.month-button {
+.byte-cell.selected {
 }
-.month-button.selected {
+.byte-cell.today {
 }
-.month-button.current {
-}
-.day-cell {
-}
-.day-cell.selected {
-}
-.year-button {
-}
-.year-button.current {
+.byte-cell-lg {
 }
 ```
 
@@ -415,18 +413,21 @@ The component uses CSS classes that you can easily override. Here are the main c
 ByteDatePicker v2 is built with CSS variables, making it easy to create custom themes or override specific styles.
 
 #### Using the `theme` prop
+
 The easiest way to toggle between light and dark modes is via the `theme` prop:
+
 - `<ByteDatePicker theme="light" />` (Default)
 - `<ByteDatePicker theme="dark" />` - Forces dark mode.
 - `<ByteDatePicker theme="system" />` - Automatically follows user OS preference.
 
 #### Global Variable Overrides
+
 You can override colors, radii, and fonts globally in your CSS:
 
 ```css
 :root {
-  --byte-primary: #2563eb;       /* Primary brand color */
-  --byte-radius-lg: 12px;        /* Container corners */
+  --byte-primary: #2563eb; /* Primary brand color */
+  --byte-radius-lg: 12px; /* Container corners */
   --byte-font: "Inter", sans-serif;
 }
 
