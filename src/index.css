@@ -36,6 +36,10 @@
 }
 
 .byte-clear-btn {
+  all: unset;
+  box-sizing: border-box;
+  font-family: inherit;
+
   background: transparent;
   border: none;
   padding: 4px;
@@ -78,13 +82,6 @@
   --byte-glass-border: rgba(255, 255, 255, 0.12);
 }
 
-.byte-datepicker-container button {
-  all: unset;
-  box-sizing: border-box;
-  font-family: inherit;
-  cursor: pointer;
-}
-
 .byte-datepicker-container {
   position: relative;
   display: inline-block;
@@ -108,6 +105,7 @@
   color: var(--byte-text-main);
   user-select: none;
 }
+
 
 .byte-input:hover {
   border-color: var(--byte-border-hover);
@@ -156,6 +154,10 @@
 }
 
 .byte-title-btn {
+  all: unset;
+  box-sizing: border-box;
+  font-family: inherit;
+
   font-size: 16px;
   font-weight: 700;
   color: var(--byte-text-main);
@@ -173,6 +175,10 @@
 }
 
 .byte-nav-btn {
+  all: unset;
+  box-sizing: border-box;
+  font-family: inherit;
+
   width: 36px;
   height: 36px;
   display: flex;
@@ -223,6 +229,10 @@
 }
 
 .byte-cell {
+  all: unset;
+  box-sizing: border-box;
+  font-family: inherit;
+
   aspect-ratio: 1;
   display: flex;
   align-items: center;

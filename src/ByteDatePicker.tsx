@@ -180,7 +180,9 @@ export default function ByteDatePicker(props: DatePickerProps) {
     }
 
     return (
-      <>
+      <div
+        className={`byte-datepicker-container ${isDarkMode ? "byte-dark" : ""}`}
+      >
         <div className="byte-overlay" onClick={close} />
         <div
           className="byte-dropdown"
@@ -197,7 +199,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
           />
           {content}
         </div>
-      </>
+      </div>
     );
   };
 

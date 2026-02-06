@@ -6,9 +6,7 @@ The new version includes a complete architectural refactor, a brand new design s
 
 ## What's New in v2
 
-### 💎 Nova Cobalt Theme
-
-The old design is gone. v2 features a premium glossy theme with:
+The old design is gone. v2.0.0 features a premium glossy theme with:
 
 - **Consistent Blue Palette**: Professional sapphire/cobalt accents.
 - **Glassmorphism**: Modern backdrop blur on overlays.
@@ -21,12 +19,12 @@ v2 now supports dark mode out of the box with zero extra CSS.
 - Use the `theme` prop to toggle between `light`, `dark`, or `system` (follows user OS settings).
 - Fully variable-based styling for easy overrides.
 
-### 🧹 Improved Selection Management
+### Improved Selection Management
 
 - **One-Click Clear**: Added a `clearable` prop to quickly reset the date.
 - **Smart Hooks**: Core logic is now extracted into `useDatePicker`, allowing for easier integration.
 
-### ⚛️ Notes
+### Notes
 
 - **Updates**: Updated to latest React version.
 - **Improved Architecture**: Refactored to micromodules to prevent logic coupling in mega-components.
@@ -47,17 +45,17 @@ A lightweight, elegant, and highly customizable React datepicker component with 
 
 ## ✨ Features
 
-- 🎯 **Lightweight** - Minimal dependencies, small bundle size
-- 🎨 **Highly Customizable** - Easy to style and theme
-- 📱 **Responsive** - Works great on mobile and desktop
-- ♿ **Accessible** - Built with accessibility in mind
-- 🗓️ **Flexible** - Month/year picker or full date picker modes
-- ⚡ **Modern** - Built with TypeScript and modern React patterns
-- 🎭 **Beautiful UI** - Clean, modern interface with smooth animations
-- 🧩 **Custom Input Support** - Use your own input/button with full control
-- 🗓️ **Display Formatting** - Easily control how the date is displayed with flexible format tokens
+- **Lightweight** - Minimal dependencies, small bundle size
+- **Highly Customizable** - Easy to style and theme
+- **Responsive** - Works great on mobile and desktop
+- **Accessible** - Built with accessibility in mind
+- **Flexible** - Month/year picker or full date picker modes
+- **Modern** - Built with TypeScript and modern React patterns
+- **Beautiful UI** - Clean, modern interface with smooth animations
+- **Custom Input Support** - Use your own input/button with full control
+- **Display Formatting** - Easily control how the date is displayed with flexible format tokens
 
-## 🚀 Installation
+## Installation
 
 ```bash
 npm install byte-datepicker
@@ -363,12 +361,12 @@ You can pass a `Date` object, an ISO string (`"YYYY-MM-DD"`), or a date string t
 <ByteDatePicker value="25 Jan 2019" onChange={setDate} />// Day, month, year
 ```
 
-**⚠️ Note:**
+**Note:**
 
 - Short or ambiguous formats like `"jun 25"` or `"25/1/2019"` may not work reliably in all browsers.
 - For best results, use ISO strings (`"YYYY-MM-DD"`), full month names with year (`"June 2025"`), or `Date` objects.
 
-## 🎨 Styling
+## Styling
 
 **Important:** You must import the CSS file for the component to display correctly:
 
@@ -578,7 +576,7 @@ The datepicker supports:
 - Required field indication
 - Error state styling
 
-## 🚀 Development
+## Development
 
 Want to contribute? Great! Here's how to get started:
 
@@ -608,17 +606,17 @@ Byte DatePicker is designed to be lightweight:
 - **Zero runtime dependencies** (except React peer dependencies)
 - **Tree-shakeable**: Modern bundlers will only include what you use
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
 1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+2. Create your feature branch (`git switch -c feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with ❤️ by [Rahman Nugar](https://github.com/Rahmannugar)
 - Inspired by the need for a simple, customizable React datepicker
