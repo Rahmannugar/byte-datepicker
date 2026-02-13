@@ -1,34 +1,49 @@
 # ByteDatePicker v2
 
-Byte Datepicker V2 is live.
+Byte Datepicker V2 is live!
 
 The new version includes a complete architectural refactor, a brand new design system, and improved developer experience.
 
-## What's New in v2
+## What's new in v2
 
-The old design is gone. v2.0.0 features a premium glossy theme with:
+ByteDatePicker v2 is built with a focus on performance, clarity, and developer experience. The component features a modern design system with comprehensive theming support and a modular architecture.
 
-- **Consistent Blue Palette**: Professional sapphire/cobalt accents.
-- **Glassmorphism**: Modern backdrop blur on overlays.
-- **Improved Typography**: Clean, modern sans-serif stack.
+### Design System
 
-### 🌑 Native Dark Mode
+The v2 design system implements a solid, high-contrast interface optimized for both light and dark environments:
 
-v2 now supports dark mode out of the box with zero extra CSS.
+- **Color Palette**: Blue primary (`#3b82f6`) with gold accent (`#f59e0b`) for visual hierarchy
+- **Surface Treatment**: Opaque backgrounds with multi-tier shadow system (sm, md, lg, xl, 2xl) for depth perception
+- **Typography**: Enhanced contrast ratios with refined font weights for improved readability
+- **Interactive States**: Transform-based hover effects with cubic-bezier timing functions for smooth transitions
+- **Visual Feedback**: Linear gradient backgrounds on selected states with inset highlights
 
-- Use the `theme` prop to toggle between `light`, `dark`, or `system` (follows user OS settings).
-- Fully variable-based styling for easy overrides.
+### Dark Mode Implementation
 
-### Improved Selection Management
+The dark mode theme uses a deep navy color scheme with optimized contrast ratios:
 
-- **One-Click Clear**: Added a `clearable` prop to quickly reset the date.
-- **Smart Hooks**: Core logic is now extracted into `useDatePicker`, allowing for easier integration.
+- **Background**: `#0f172a` base with `#1e293b` elevated surfaces
+- **Color Adjustments**: Lighter blue and gold variants calibrated for dark backgrounds
+- **Shadow System**: Enhanced shadow depths with adjusted opacity for visibility
+- **Text Hierarchy**: Improved contrast with dedicated secondary and muted text colors
+- **Overlay Treatment**: Theme-specific overlay backgrounds for proper visual separation
 
-### Notes
+Theme selection supports `light`, `dark`, or `system` modes via the `theme` prop, with system mode automatically detecting OS preferences.
 
-- **Updates**: Updated to latest React version.
-- **Improved Architecture**: Refactored to micromodules to prevent logic coupling in mega-components.
-- **Zero Dependencies(except React)**: Still zero external runtime dependencies outside of React
+### User Experience Improvements
+
+- **Compact Layout**: Reduced component dimensions with optimized spacing for modern interfaces
+- **Clearable Input**: Optional clear functionality via `clearable` prop
+- **Selection Feedback**: Proper visual state management for month/year selection modes
+- **Border Consistency**: Uniform 1px border widths across all interactive elements
+
+### Architecture
+
+- **Component Structure**: Modular design with separated concerns (CalendarHeader, DayGrid, MonthGrid, YearGrid)
+- **State Management**: Custom `useDatePicker` hook for reusable date selection logic
+- **Type Safety**: Full TypeScript implementation with comprehensive interface definitions
+- **Dependencies**: Zero runtime dependencies beyond React peer dependencies
+- **Theming**: CSS custom property-based theming system for easy customization
 
 ---
 
@@ -304,6 +319,89 @@ function YearOnlyPicker() {
 
 - Set `yearOnly={true}` to show only the year selection grid.
 - The selected value will be a `Date` object with January 1st of the selected year.
+
+### Using the `useDatePicker` Hook
+
+For advanced use cases where you need full control over the datepicker's rendering and behavior, you can use the `useDatePicker` hook directly. This hook manages all the internal state and logic, allowing you to build completely custom datepicker UIs.
+
+```tsx
+import { useDatePicker } from "byte-datepicker";
+
+function CustomDatePicker() {
+  const {
+    selectedDate,
+    currentYear,
+    setCurrentYear,
+    currentMonth,
+    setCurrentMonth,
+    isOpen,
+    setIsOpen,
+    viewMode,
+    setViewMode,
+    handleChange,
+    toggleOpen,
+    close,
+    clear,
+  } = useDatePicker({
+    value: null,
+    onChange: (date) => console.log("Selected:", date),
+    includeDays: true,
+    minDate: "2020-01-01",
+    maxDate: "2030-12-31",
+  });
+
+  return (
+    <div>
+      <button onClick={toggleOpen}>
+        {selectedDate ? selectedDate.toLocaleDateString() : "Pick a date"}
+      </button>
+
+      {isOpen && (
+        <div className="custom-calendar">
+          <div>
+            <button onClick={() => setCurrentYear(currentYear - 1)}>←</button>
+            <span>{currentYear}</span>
+            <button onClick={() => setCurrentYear(currentYear + 1)}>→</button>
+          </div>
+
+          {/* Build your custom calendar UI here */}
+          {/* Use the provided state and handlers */}
+
+          <button onClick={close}>Close</button>
+          <button onClick={clear}>Clear</button>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+**Hook Return Values:**
+
+| Property          | Type                            | Description                                 |
+| ----------------- | ------------------------------- | ------------------------------------------- |
+| `selectedDate`    | `Date \| null`                  | Currently selected date                     |
+| `currentYear`     | `number`                        | Year currently being viewed in the calendar |
+| `setCurrentYear`  | `(year: number) => void`        | Update the year being viewed                |
+| `currentMonth`    | `number`                        | Month currently being viewed (0-11)         |
+| `setCurrentMonth` | `(month: number) => void`       | Update the month being viewed               |
+| `isOpen`          | `boolean`                       | Whether the calendar dropdown is open       |
+| `setIsOpen`       | `(open: boolean) => void`       | Control the dropdown open state             |
+| `viewMode`        | `"days" \| "months" \| "years"` | Current view mode of the calendar           |
+| `setViewMode`     | `(mode: ViewMode) => void`      | Switch between day, month, and year views   |
+| `min`             | `Date \| undefined`             | Normalized minimum date                     |
+| `max`             | `Date \| undefined`             | Normalized maximum date                     |
+| `handleChange`    | `(date: Date \| null) => void`  | Call this when a date is selected           |
+| `toggleOpen`      | `() => void`                    | Toggle the dropdown open/closed             |
+| `close`           | `() => void`                    | Close the dropdown and reset view mode      |
+| `clear`           | `() => void`                    | Clear the selected date                     |
+
+This hook is useful when you need to:
+
+- Build a completely custom UI that doesn't match the default design
+- Integrate with existing design systems or component libraries
+- Implement custom calendar layouts or interactions
+- Have fine-grained control over the datepicker's behavior
 
 ## 📋 Props
 

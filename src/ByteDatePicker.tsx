@@ -159,7 +159,9 @@ export default function ByteDatePicker(props: DatePickerProps) {
       content = (
         <MonthGrid
           currentYear={currentYear}
+          currentMonth={currentMonth}
           selectedDate={selectedDate}
+          includeDays={includeDays}
           min={min}
           max={max}
           onSelect={handleMonthSelect}
