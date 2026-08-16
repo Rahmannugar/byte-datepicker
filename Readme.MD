@@ -43,6 +43,33 @@ const [time, setTime] = useState<string | null>(null);
 
 The value is always a local `HH:mm` string such as `"09:30"` or `"14:45"`. The component works at minute precision and does not accept or emit seconds. The 12-hour format changes only what the user sees; values still use the stable 24-hour `HH:mm` format.
 
+#### Custom time input
+
+Set `hideInput` and use the `children` render prop to replace the default time input with your own input or button.
+
+```tsx
+const [time, setTime] = useState<string | null>(null);
+
+<ByteTimePicker value={time} onChange={setTime} hideInput>
+  {({ open, isOpen, formattedValue }) => (
+    <input
+      readOnly
+      value={formattedValue}
+      placeholder="Select time"
+      onClick={open}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") open();
+      }}
+      aria-haspopup="dialog"
+      aria-expanded={isOpen}
+      className="border rounded-lg px-4 py-2"
+    />
+  )}
+</ByteTimePicker>;
+```
+
+The render prop provides `open`, `isOpen`, `selectedTime`, `formattedValue`, and `clear`.
+
 | Prop          | Type                              | Default         | Description                                        |
 | ------------- | --------------------------------- | --------------- | -------------------------------------------------- |
 | `value`       | `string \| null`                  | `null`          | Selected time in `HH:mm` format                    |
@@ -73,6 +100,37 @@ const [appointment, setAppointment] = useState<Date | null>(null);
 
 The picker uses a Date → Time flow. Selecting a date moves to the time step without assigning a default time or calling `onChange`. The completed local `Date` is emitted only after the user selects a time and presses **Done**. Seconds and milliseconds are always zero.
 
+#### Custom date-time input
+
+The date-time picker supports the same custom-input pattern.
+
+```tsx
+const [appointment, setAppointment] = useState<Date | null>(null);
+
+<ByteDateTimePicker
+  value={appointment}
+  onChange={setAppointment}
+  hideInput
+>
+  {({ open, isOpen, formattedValue }) => (
+    <input
+      readOnly
+      value={formattedValue}
+      placeholder="Select date and time"
+      onClick={open}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") open();
+      }}
+      aria-haspopup="dialog"
+      aria-expanded={isOpen}
+      className="border rounded-lg px-4 py-2"
+    />
+  )}
+</ByteDateTimePicker>;
+```
+
+The render prop provides `open`, `isOpen`, `selectedDateTime`, `formattedValue`, and `clear`.
+
 | Prop               | Type                            | Default                  | Description                                        |
 | ------------------ | ------------------------------- | ------------------------ | -------------------------------------------------- |
 | `value`            | `Date \| string \| null`        | `null`                   | Selected local date and time                       |
@@ -86,6 +144,8 @@ The picker uses a Date → Time flow. Selecting a date moves to the time step wi
 | `clearable`        | `boolean`                       | `false`                  | Show a clear action when a value exists            |
 
 Both new components also support `disabled`, `required`, `name`, `onBlur`, `error`, `className`, `theme`, `hideInput`, and a custom-trigger `children` render prop, matching the corresponding `ByteDatePicker` behavior.
+
+When `name` or `required` is set, form submission and browser validation continue to work with a custom input because the picker maintains its form value internally.
 
 ## Dialog and modal support
 

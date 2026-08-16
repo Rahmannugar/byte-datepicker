@@ -1,6 +1,6 @@
 {
   "name": "byte-datepicker",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Lightweight, accessible React date, time, and date-time picker components.",
   "author": "Rahman Nugar",
   "license": "MIT",
