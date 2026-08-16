@@ -1,17 +1,22 @@
-import { useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useRef } from "react";
 import { DatePickerProps } from "./types";
 import { useDatePicker } from "./hooks/useDatePicker";
 import {
   monthNames,
   formatDateByString,
+  formatLocalDate,
   isDateInRange,
+  isMonthInRange,
+  isYearInRange,
 } from "./utils/dateUtils";
 import { DatePickerInput } from "./components/DatePickerInput";
 import { CalendarHeader } from "./components/CalendarHeader";
 import { DayGrid } from "./components/DayGrid";
 import { MonthGrid } from "./components/MonthGrid";
 import { YearGrid } from "./components/YearGrid";
+import { PickerPopover } from "./components/PickerPopover";
+import { PickerFormInput } from "./components/PickerFormInput";
+import { useDarkMode } from "./hooks/useDarkMode";
 
 export default function ByteDatePicker(props: DatePickerProps) {
   const {
@@ -50,35 +55,13 @@ export default function ByteDatePicker(props: DatePickerProps) {
   } = useDatePicker(props);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isDarkMode =
-    theme === "dark" ||
-    (theme === "system" &&
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDarkMode = useDarkMode(theme);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      const target = event.target as Node;
-      if (
-        !containerRef.current?.contains(target) &&
-        !dropdownRef.current?.contains(target)
-      ) {
-        close();
-        if (onBlur) onBlur();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, [isOpen, onBlur, close]);
+  const dismiss = useCallback(() => {
+    close();
+    onBlur?.();
+  }, [close, onBlur]);
 
   const formatDisplay = (date: Date | null) => {
     if (!date) return "";
@@ -92,7 +75,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
     const newDate = new Date(currentYear, currentMonth, day);
     if (!isDateInRange(newDate, min, max)) return;
     handleChange(newDate);
-    setIsOpen(false);
+    dismiss();
   };
 
   const handleMonthSelect = (monthIndex: number) => {
@@ -101,9 +84,9 @@ export default function ByteDatePicker(props: DatePickerProps) {
       setViewMode("days");
     } else {
       const newDate = new Date(currentYear, monthIndex, 1);
-      if (!isDateInRange(newDate, min, max)) return;
+      if (!isMonthInRange(currentYear, monthIndex, min, max)) return;
       handleChange(newDate);
-      setIsOpen(false);
+      dismiss();
     }
   };
 
@@ -111,9 +94,9 @@ export default function ByteDatePicker(props: DatePickerProps) {
     setCurrentYear(year);
     if (yearOnly) {
       const newDate = new Date(year, 0, 1);
-      if (!isDateInRange(newDate, min, max)) return;
+      if (!isYearInRange(year, min, max)) return;
       handleChange(newDate);
-      setIsOpen(false);
+      dismiss();
     } else {
       setViewMode("months");
     }
@@ -149,6 +132,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
       content = (
         <YearGrid
           currentYear={currentYear}
+          selectedDate={selectedDate}
           min={min}
           max={max}
           onSelect={handleYearSelect}
@@ -157,12 +141,10 @@ export default function ByteDatePicker(props: DatePickerProps) {
     } else if (viewMode === "months") {
       headerTitle = `${currentYear}`;
       content = (
-        <MonthGrid
-          currentYear={currentYear}
-          currentMonth={currentMonth}
-          selectedDate={selectedDate}
-          includeDays={includeDays}
-          min={min}
+          <MonthGrid
+            currentYear={currentYear}
+            selectedDate={selectedDate}
+            min={min}
           max={max}
           onSelect={handleMonthSelect}
         />
@@ -182,26 +164,19 @@ export default function ByteDatePicker(props: DatePickerProps) {
     }
 
     return (
-      <div
-        className={`byte-datepicker-container ${isDarkMode ? "byte-dark" : ""}`}
-      >
-        <div className="byte-overlay" onClick={close} />
-        <div
-          className="byte-dropdown"
-          ref={dropdownRef}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <CalendarHeader
-            title={headerTitle}
-            onPrev={() => navigate("prev")}
-            onNext={() => navigate("next")}
-            onTitleClick={() =>
-              !yearOnly && setViewMode(viewMode === "days" ? "months" : "years")
-            }
-          />
-          {content}
-        </div>
-      </div>
+      <>
+        <CalendarHeader
+          title={headerTitle}
+          onPrev={() => navigate("prev")}
+          onNext={() => navigate("next")}
+          onTitleClick={
+            yearOnly || viewMode === "years"
+              ? undefined
+              : () => setViewMode(viewMode === "days" ? "months" : "years")
+          }
+        />
+        {content}
+      </>
     );
   };
 
@@ -212,6 +187,13 @@ export default function ByteDatePicker(props: DatePickerProps) {
       className={`byte-datepicker-container ${className} ${isDarkMode ? "byte-dark" : ""}`}
       ref={containerRef}
     >
+      <PickerFormInput
+        sourceRef={containerRef}
+        name={name}
+        value={selectedDate ? formatLocalDate(selectedDate) : ""}
+        required={required}
+        disabled={disabled}
+      />
       {!hideInput ? (
         <DatePickerInput
           label={formattedValue}
@@ -220,12 +202,13 @@ export default function ByteDatePicker(props: DatePickerProps) {
           disabled={disabled}
           error={error}
           required={required}
-          name={name}
-          value={selectedDate?.toISOString() || ""}
-          onClick={toggleOpen}
+          onClick={isOpen ? dismiss : toggleOpen}
           onClear={clear}
           clearable={clearable}
-          onBlur={onBlur}
+          onBlur={() => {
+            if (!isOpen) onBlur?.();
+          }}
+          ariaLabel={placeholder}
         />
       ) : (
         children &&
@@ -237,7 +220,15 @@ export default function ByteDatePicker(props: DatePickerProps) {
           clear,
         })
       )}
-      {isOpen && createPortal(renderDropdown(), document.body)}
+      <PickerPopover
+        open={isOpen}
+        sourceRef={containerRef}
+        onDismiss={dismiss}
+        dark={isDarkMode}
+        ariaLabel="Choose a date"
+      >
+        {isOpen ? renderDropdown() : null}
+      </PickerPopover>
     </div>
   );
 }

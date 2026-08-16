@@ -7,9 +7,7 @@ import {
 
 interface MonthGridProps {
   currentYear: number;
-  currentMonth: number;
   selectedDate: Date | null;
-  includeDays: boolean;
   min?: Date;
   max?: Date;
   onSelect: (monthIndex: number) => void;
@@ -17,9 +15,7 @@ interface MonthGridProps {
 
 export const MonthGrid: React.FC<MonthGridProps> = ({
   currentYear,
-  currentMonth,
   selectedDate,
-  includeDays,
   min,
   max,
   onSelect,
@@ -32,11 +28,9 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
         const disabled = !isMonthInRange(currentYear, index, min, max);
         const isCurrent =
           index === today.getMonth() && currentYear === today.getFullYear();
-        const isSelected = includeDays
-          ? index === currentMonth &&
-            currentYear === (selectedDate?.getFullYear() || currentYear)
-          : selectedDate?.getMonth() === index &&
-            selectedDate?.getFullYear() === currentYear;
+        const isSelected =
+          selectedDate?.getMonth() === index &&
+          selectedDate?.getFullYear() === currentYear;
 
         return (
           <button
@@ -45,6 +39,8 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
             onClick={() => onSelect(index)}
             disabled={disabled}
             type="button"
+            aria-label={`${month} ${currentYear}`}
+            aria-pressed={isSelected}
           >
             {shortMonthNames[index]}
           </button>

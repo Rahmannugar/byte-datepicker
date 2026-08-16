@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ViewMode, DatePickerProps } from "../types";
-import { normalizeToDate, normalizeToStartOfDay } from "../utils/dateUtils";
+import { clampDateToRange, normalizeToDate } from "../utils/dateUtils";
 
 export function useDatePicker({
   value,
@@ -10,46 +10,67 @@ export function useDatePicker({
   minDate,
   maxDate,
   required,
+  disabled,
 }: DatePickerProps) {
-  const today = new Date();
-  const normalizedValue = normalizeToDate(value) ?? null;
+  const controlled = value !== undefined;
+  const normalizedValue = useMemo(() => normalizeToDate(value) ?? null, [value]);
+  const min = useMemo(() => normalizeToDate(minDate), [minDate]);
+  const max = useMemo(() => normalizeToDate(maxDate), [maxDate]);
+  const initialCalendarDate =
+    normalizedValue ?? clampDateToRange(new Date(), min, max);
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(normalizedValue);
+  const [internalValue, setInternalValue] = useState<Date | null>(normalizedValue);
+  const selectedDate = controlled ? normalizedValue : internalValue;
   const [currentYear, setCurrentYear] = useState(
-    normalizedValue?.getFullYear() || today.getFullYear()
+    initialCalendarDate.getFullYear()
   );
   const [currentMonth, setCurrentMonth] = useState(
-    normalizedValue?.getMonth() || today.getMonth()
+    initialCalendarDate.getMonth()
   );
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>(
     yearOnly ? "years" : includeDays ? "days" : "months"
   );
 
-  const min = minDate ? normalizeToDate(minDate) : undefined;
-  const max = maxDate ? normalizeToDate(maxDate) : undefined;
-
   useEffect(() => {
-    const newDate = normalizeToDate(value) ?? null;
-    setSelectedDate(newDate);
-    if (newDate) {
-      setCurrentYear(newDate.getFullYear());
-      setCurrentMonth(newDate.getMonth());
+    if (normalizedValue) {
+      setCurrentYear(normalizedValue.getFullYear());
+      setCurrentMonth(normalizedValue.getMonth());
     }
-  }, [value]);
+  }, [normalizedValue]);
 
   useEffect(() => {
-    if (yearOnly) setViewMode("years");
-  }, [yearOnly]);
+    if (!selectedDate) {
+      const fallbackDate = clampDateToRange(new Date(), min, max);
+      setCurrentYear(fallbackDate.getFullYear());
+      setCurrentMonth(fallbackDate.getMonth());
+    }
+  }, [selectedDate, min, max]);
+
+  useEffect(() => {
+    setViewMode(yearOnly ? "years" : includeDays ? "days" : "months");
+  }, [yearOnly, includeDays]);
+
+  useEffect(() => {
+    if (disabled) {
+      setIsOpen(false);
+      setViewMode(yearOnly ? "years" : includeDays ? "days" : "months");
+    }
+  }, [disabled, yearOnly, includeDays]);
 
   const handleChange = useCallback((newDate: Date | null) => {
-    if (required && !newDate) return;
-    onChange?.(newDate);
-  }, [required, onChange]);
+    if (disabled || (required && !newDate)) return;
+    const nextValue = newDate ? new Date(newDate.getTime()) : null;
+    if (!controlled) {
+      setInternalValue(nextValue ? new Date(nextValue.getTime()) : null);
+    }
+    onChange?.(nextValue);
+  }, [controlled, disabled, required, onChange]);
 
   const toggleOpen = useCallback(() => {
+    if (disabled) return;
     setIsOpen((prev: boolean) => !prev);
-  }, []);
+  }, [disabled]);
 
   const close = useCallback(() => {
     setIsOpen(false);
@@ -57,8 +78,9 @@ export function useDatePicker({
   }, [yearOnly, includeDays]);
 
   const clear = useCallback(() => {
+    if (disabled) return;
     handleChange(null);
-  }, [handleChange]);
+  }, [disabled, handleChange]);
 
   return {
     selectedDate,

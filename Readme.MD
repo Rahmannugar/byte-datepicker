@@ -1,16 +1,137 @@
-# ByteDatePicker v2
+# ByteDatePicker v3
 
-Byte Datepicker V2 is live!
+Byte DatePicker v3 adds dedicated time and date-time pickers alongside the existing date picker.
 
-The new version includes a complete architectural refactor, a brand new design system, and improved developer experience.
+## What's new in v3
 
-## What's new in v2
+- Dedicated `ByteTimePicker` and `ByteDateTimePicker` exports
+- Automatic support for pickers rendered inside dialogs and focus-trapped modals
+- Keyboard focus containment, Escape dismissal, and focus restoration
+- Local form values (`YYYY-MM-DD`, `HH:mm`, and `YYYY-MM-DDTHH:mm`) without UTC date shifts
+- The existing `ByteDatePicker` API remains unchanged
 
-ByteDatePicker v2 is built with a focus on performance, clarity, and developer experience. The component features a modern design system with comprehensive theming support and a modular architecture.
+## Picker components
 
-### Design System
+V3 exports three focused components:
 
-The v2 design system implements a solid, high-contrast interface optimized for both light and dark environments:
+```tsx
+import {
+  ByteDatePicker,
+  ByteTimePicker,
+  ByteDateTimePicker,
+} from "byte-datepicker";
+import "byte-datepicker/styles.css";
+```
+
+### `ByteTimePicker`
+
+Use `ByteTimePicker` when a form needs a local time without a calendar date.
+
+```tsx
+const [time, setTime] = useState<string | null>(null);
+
+<ByteTimePicker
+  value={time}
+  onChange={setTime}
+  hourFormat={12}
+  minuteStep={5}
+  minTime="09:00"
+  maxTime="17:00"
+  clearable
+/>;
+```
+
+The value is always a local `HH:mm` string such as `"09:30"` or `"14:45"`. The component works at minute precision and does not accept or emit seconds. The 12-hour format changes only what the user sees; values still use the stable 24-hour `HH:mm` format.
+
+| Prop          | Type                              | Default         | Description                                        |
+| ------------- | --------------------------------- | --------------- | -------------------------------------------------- |
+| `value`       | `string \| null`                  | `null`          | Selected time in `HH:mm` format                    |
+| `onChange`    | `(value: string \| null) => void` | —               | Called after the user confirms or clears the value |
+| `hourFormat`  | `12 \| 24`                        | `12`            | Display the selector in 12-hour or 24-hour format  |
+| `minuteStep`  | `number`                          | `1`             | Interval between selectable minutes, from 1 to 60  |
+| `minTime`     | `string`                          | —               | Earliest allowed `HH:mm` value                     |
+| `maxTime`     | `string`                          | —               | Latest allowed `HH:mm` value                       |
+| `placeholder` | `string`                          | `"Select time"` | Empty input text                                   |
+| `clearable`   | `boolean`                         | `false`         | Show a clear action when a value exists            |
+
+### `ByteDateTimePicker`
+
+Use `ByteDateTimePicker` for appointments, schedules, bookings, and other values that require a calendar date and local time.
+
+```tsx
+const [appointment, setAppointment] = useState<Date | null>(null);
+
+<ByteDateTimePicker
+  value={appointment}
+  onChange={setAppointment}
+  hourFormat={12}
+  minuteStep={15}
+  minDateTime={new Date(2026, 7, 16, 9, 0)}
+  maxDateTime={new Date(2026, 7, 20, 17, 0)}
+/>;
+```
+
+The picker uses a Date → Time flow. Selecting a date moves to the time step without assigning a default time or calling `onChange`. The completed local `Date` is emitted only after the user selects a time and presses **Done**. Seconds and milliseconds are always zero.
+
+| Prop               | Type                            | Default                  | Description                                        |
+| ------------------ | ------------------------------- | ------------------------ | -------------------------------------------------- |
+| `value`            | `Date \| string \| null`        | `null`                   | Selected local date and time                       |
+| `onChange`         | `(value: Date \| null) => void` | —                        | Called after the user confirms or clears the value |
+| `minDateTime`      | `Date \| string`                | —                        | Earliest allowed date and time                     |
+| `maxDateTime`      | `Date \| string`                | —                        | Latest allowed date and time                       |
+| `dateFormatString` | `string`                        | `"dd month yyyy"`        | Date portion of the displayed value                |
+| `hourFormat`       | `12 \| 24`                      | `12`                     | Display the time step in 12-hour or 24-hour format |
+| `minuteStep`       | `number`                        | `1`                      | Interval between selectable minutes, from 1 to 60  |
+| `placeholder`      | `string`                        | `"Select date and time"` | Empty input text                                   |
+| `clearable`        | `boolean`                       | `false`                  | Show a clear action when a value exists            |
+
+Both new components also support `disabled`, `required`, `name`, `onBlur`, `error`, `className`, `theme`, `hideInput`, and a custom-trigger `children` render prop, matching the corresponding `ByteDatePicker` behavior.
+
+## Dialog and modal support
+
+All three pickers work inside native `<dialog>` elements and focus-trapped modal libraries without configuration. The picker automatically renders inside the nearest dialog instead of moving its interactive content outside the modal.
+
+```tsx
+const dialogRef = useRef<HTMLDialogElement>(null);
+
+<button type="button" onClick={() => dialogRef.current?.showModal()}>
+  Schedule appointment
+</button>
+
+<dialog ref={dialogRef}>
+  <ByteDateTimePicker value={appointment} onChange={setAppointment} />
+  <button type="button" onClick={() => dialogRef.current?.close()}>
+    Close
+  </button>
+</dialog>;
+```
+
+No portal target or rendering-mode prop is required. When there is no surrounding dialog, the picker renders at the document level as usual. The shared overlay also handles Escape dismissal, keyboard focus containment, outside clicks, and restoring focus to the trigger.
+
+### How dialog rendering works
+
+The behavior lives inside the shared picker overlay. It finds the closest native or ARIA dialog containing the picker and uses that element as the portal target. If the picker is not inside a dialog, it falls back to `document.body`.
+
+```tsx
+const portalTarget =
+  sourceRef.current?.closest("dialog, [role='dialog']") ?? document.body;
+
+return createPortal(
+  <div className="byte-picker-portal">
+    <div className="byte-overlay" />
+    <div role="dialog" aria-modal="true">
+      {children}
+    </div>
+  </div>,
+  portalTarget,
+);
+```
+
+This keeps the picker inside the modal's interactive DOM subtree, so native dialog restrictions and modal focus traps do not mistake it for outside content. This logic is internal; applications continue using the picker normally.
+
+## Design System
+
+The design system implements a solid, high-contrast interface optimized for both light and dark environments:
 
 - **Color Palette**: Blue primary (`#3b82f6`) with gold accent (`#f59e0b`) for visual hierarchy
 - **Surface Treatment**: Opaque backgrounds with multi-tier shadow system (sm, md, lg, xl, 2xl) for depth perception
@@ -30,13 +151,6 @@ The dark mode theme uses a deep navy color scheme with optimized contrast ratios
 
 Theme selection supports `light`, `dark`, or `system` modes via the `theme` prop, with system mode automatically detecting OS preferences.
 
-### User Experience Improvements
-
-- **Compact Layout**: Reduced component dimensions with optimized spacing for modern interfaces
-- **Clearable Input**: Optional clear functionality via `clearable` prop
-- **Selection Feedback**: Proper visual state management for month/year selection modes
-- **Border Consistency**: Uniform 1px border widths across all interactive elements
-
 ### Architecture
 
 - **Component Structure**: Modular design with separated concerns (CalendarHeader, DayGrid, MonthGrid, YearGrid)
@@ -54,11 +168,11 @@ A lightweight, elegant, and highly customizable React datepicker component with 
 [![npm version](https://img.shields.io/npm/v/byte-datepicker.svg?style=flat-square)](https://www.npmjs.com/package/byte-datepicker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🎬 Demo
+## Demo
 
 ![Byte DatePicker Demo](https://raw.githubusercontent.com/Rahmannugar/byte-datepicker/main/docs/demo.gif)
 
-## ✨ Features
+## Features
 
 - **Lightweight** - Minimal dependencies, small bundle size
 - **Highly Customizable** - Easy to style and theme
@@ -84,7 +198,7 @@ yarn add byte-datepicker
 pnpm add byte-datepicker
 ```
 
-## 📖 Usage
+## Usage
 
 ### Basic Usage
 
@@ -403,7 +517,7 @@ This hook is useful when you need to:
 - Implement custom calendar layouts or interactions
 - Have fine-grained control over the datepicker's behavior
 
-## 📋 Props
+## Props
 
 | Prop           | Type                            | Default         | Description                                           |
 | -------------- | ------------------------------- | --------------- | ----------------------------------------------------- |
@@ -450,7 +564,7 @@ This will render:
 
 You can then target `.my-datepicker-custom-class` in your CSS to style the datepicker container as needed.
 
-## 🗓️ Accepted Date Formats
+## Accepted Date Formats
 
 You can pass a `Date` object, an ISO string (`"YYYY-MM-DD"`), or a date string that JavaScript's `Date` constructor can parse to the `value`, `minDate`, and `maxDate` props.
 
@@ -512,7 +626,7 @@ The component uses CSS classes that you can easily override. Here are the main c
 
 ### Theme Customization
 
-ByteDatePicker v2 is built with CSS variables, making it easy to create custom themes or override specific styles.
+ByteDatePicker v3 is built with CSS variables, making it easy to create custom themes or override specific styles.
 
 #### Using the `theme` prop
 
@@ -540,7 +654,7 @@ You can override colors, radii, and fonts globally in your CSS:
 }
 ```
 
-## 🌟 Examples
+## Examples
 
 ### Integration with Forms
 
@@ -701,12 +815,12 @@ npm run dev
 npm run build
 ```
 
-## 📦 Bundle Size
+## Bundle Size
 
 Byte DatePicker is designed to be lightweight:
 
-- **Unpacked Size**: <100KB (includes all build files, types, and source maps)
-- **Minified**: The actual component code is much smaller when bundled
+- **Unpacked Size**: <200KB (includes published bundles, styles, and type declarations)
+- **Minification**: Production bundlers can reduce the component code further
 - **Zero runtime dependencies** (except React peer dependencies)
 - **Tree-shakeable**: Modern bundlers will only include what you use
 

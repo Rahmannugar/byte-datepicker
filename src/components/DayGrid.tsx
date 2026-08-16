@@ -1,6 +1,7 @@
 import React from "react";
 import {
   weekDays,
+  monthNames,
   getFirstDayOfMonth,
   getDaysInMonth,
   isDateInRange,
@@ -41,14 +42,14 @@ export const DayGrid: React.FC<DayGridProps> = ({
     <>
       <div className="byte-grid-days">
         {weekDays.map((day) => (
-          <div key={day} className="byte-weekday">
+          <div key={day} className="byte-weekday" aria-hidden="true">
             {day}
           </div>
         ))}
       </div>
       <div className="byte-grid-days">
         {Array.from({ length: firstDay }, (_, i) => (
-          <div key={`empty-${i}`} className="byte-cell empty" />
+          <div key={`empty-${i}`} className="byte-cell empty" aria-hidden="true" />
         ))}
         {Array.from({ length: daysInMonth }, (_, i) => {
           const day = i + 1;
@@ -62,6 +63,8 @@ export const DayGrid: React.FC<DayGridProps> = ({
               onClick={() => onSelect(day)}
               disabled={disabled}
               type="button"
+              aria-label={`${monthNames[currentMonth]} ${day}, ${currentYear}`}
+              aria-pressed={isSelectedDay(day)}
             >
               {day}
             </button>

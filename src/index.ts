@@ -1,5 +1,7 @@
 import ByteDatePicker from "./ByteDatePicker";
-export * from "./types";
+import ByteDateTimePicker from "./ByteDateTimePicker";
+import ByteTimePicker from "./ByteTimePicker";
 export { useDatePicker } from "./hooks/useDatePicker";
-export { ByteDatePicker };
+export * from "./types";
+export { ByteDatePicker, ByteDateTimePicker, ByteTimePicker };
 export default ByteDatePicker;
