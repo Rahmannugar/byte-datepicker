@@ -6,6 +6,8 @@ import {
   formatDateByString,
   formatLocalDate,
   isDateInRange,
+  isMonthInRange,
+  isYearInRange,
 } from "./utils/dateUtils";
 import { DatePickerInput } from "./components/DatePickerInput";
 import { CalendarHeader } from "./components/CalendarHeader";
@@ -13,6 +15,8 @@ import { DayGrid } from "./components/DayGrid";
 import { MonthGrid } from "./components/MonthGrid";
 import { YearGrid } from "./components/YearGrid";
 import { PickerPopover } from "./components/PickerPopover";
+import { PickerFormInput } from "./components/PickerFormInput";
+import { useDarkMode } from "./hooks/useDarkMode";
 
 export default function ByteDatePicker(props: DatePickerProps) {
   const {
@@ -52,11 +56,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isDarkMode =
-    theme === "dark" ||
-    (theme === "system" &&
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDarkMode = useDarkMode(theme);
 
   const dismiss = useCallback(() => {
     close();
@@ -84,7 +84,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
       setViewMode("days");
     } else {
       const newDate = new Date(currentYear, monthIndex, 1);
-      if (!isDateInRange(newDate, min, max)) return;
+      if (!isMonthInRange(currentYear, monthIndex, min, max)) return;
       handleChange(newDate);
       dismiss();
     }
@@ -94,7 +94,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
     setCurrentYear(year);
     if (yearOnly) {
       const newDate = new Date(year, 0, 1);
-      if (!isDateInRange(newDate, min, max)) return;
+      if (!isYearInRange(year, min, max)) return;
       handleChange(newDate);
       dismiss();
     } else {
@@ -132,6 +132,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
       content = (
         <YearGrid
           currentYear={currentYear}
+          selectedDate={selectedDate}
           min={min}
           max={max}
           onSelect={handleYearSelect}
@@ -140,12 +141,10 @@ export default function ByteDatePicker(props: DatePickerProps) {
     } else if (viewMode === "months") {
       headerTitle = `${currentYear}`;
       content = (
-        <MonthGrid
-          currentYear={currentYear}
-          currentMonth={currentMonth}
-          selectedDate={selectedDate}
-          includeDays={includeDays}
-          min={min}
+          <MonthGrid
+            currentYear={currentYear}
+            selectedDate={selectedDate}
+            min={min}
           max={max}
           onSelect={handleMonthSelect}
         />
@@ -170,8 +169,10 @@ export default function ByteDatePicker(props: DatePickerProps) {
           title={headerTitle}
           onPrev={() => navigate("prev")}
           onNext={() => navigate("next")}
-          onTitleClick={() =>
-            !yearOnly && setViewMode(viewMode === "days" ? "months" : "years")
+          onTitleClick={
+            yearOnly || viewMode === "years"
+              ? undefined
+              : () => setViewMode(viewMode === "days" ? "months" : "years")
           }
         />
         {content}
@@ -186,6 +187,13 @@ export default function ByteDatePicker(props: DatePickerProps) {
       className={`byte-datepicker-container ${className} ${isDarkMode ? "byte-dark" : ""}`}
       ref={containerRef}
     >
+      <PickerFormInput
+        sourceRef={containerRef}
+        name={name}
+        value={selectedDate ? formatLocalDate(selectedDate) : ""}
+        required={required}
+        disabled={disabled}
+      />
       {!hideInput ? (
         <DatePickerInput
           label={formattedValue}
@@ -194,8 +202,6 @@ export default function ByteDatePicker(props: DatePickerProps) {
           disabled={disabled}
           error={error}
           required={required}
-          name={name}
-          value={selectedDate ? formatLocalDate(selectedDate) : ""}
           onClick={isOpen ? dismiss : toggleOpen}
           onClear={clear}
           clearable={clearable}
@@ -221,7 +227,7 @@ export default function ByteDatePicker(props: DatePickerProps) {
         dark={isDarkMode}
         ariaLabel="Choose a date"
       >
-        {renderDropdown()}
+        {isOpen ? renderDropdown() : null}
       </PickerPopover>
     </div>
   );

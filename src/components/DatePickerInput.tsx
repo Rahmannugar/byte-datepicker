@@ -7,8 +7,6 @@ interface DatePickerInputProps {
   disabled: boolean;
   error?: boolean;
   required?: boolean;
-  name?: string;
-  value: string;
   onClick: () => void;
   onClear?: () => void;
   clearable?: boolean;
@@ -24,8 +22,6 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
   disabled,
   error,
   required,
-  name,
-  value,
   onClick,
   onClear,
   clearable,
@@ -39,14 +35,9 @@ export const DatePickerInput: React.FC<DatePickerInputProps> = ({
     <div
       className={`byte-input ${error ? "invalid" : ""} ${disabled ? "disabled" : ""} ${showClear ? "has-clear" : ""}`}
     >
-      <input
-        type="hidden"
-        name={name}
-        value={value}
-        required={required}
-      />
       <button
         className="byte-input-trigger"
+        data-byte-picker-trigger
         type="button"
         onClick={onClick}
         onBlur={onBlur}

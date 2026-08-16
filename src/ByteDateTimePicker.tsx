@@ -1,15 +1,24 @@
-import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CalendarHeader } from "./components/CalendarHeader";
 import { DatePickerInput } from "./components/DatePickerInput";
 import { DayGrid } from "./components/DayGrid";
 import { MonthGrid } from "./components/MonthGrid";
 import { PickerPopover } from "./components/PickerPopover";
+import { PickerFormInput } from "./components/PickerFormInput";
 import { TimeSelector } from "./components/TimeSelector";
 import { YearGrid } from "./components/YearGrid";
 import { DateTimePickerProps, ViewMode } from "./types";
 import {
   formatDateByString,
   formatLocalDateTime,
+  clampDateToRange,
   isDateInRange,
   monthNames,
   normalizeToDateTime,
@@ -19,6 +28,7 @@ import {
   formatTimeForDisplay,
   getTimeFromDate,
 } from "./utils/timeUtils";
+import { useDarkMode } from "./hooks/useDarkMode";
 
 type DateTimeStep = "date" | "time";
 
@@ -62,7 +72,8 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
   const selectedDateTime = controlled ? normalizedValue : internalValue;
   const min = useMemo(() => normalizeToDateTime(minDateTime), [minDateTime]);
   const max = useMemo(() => normalizeToDateTime(maxDateTime), [maxDateTime]);
-  const today = new Date();
+  const initialCalendarDate =
+    selectedDateTime ?? clampDateToRange(new Date(), min, max);
 
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<DateTimeStep>("date");
@@ -71,23 +82,20 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
     selectedDateTime ? getTimeFromDate(selectedDateTime) : null,
   );
   const [currentYear, setCurrentYear] = useState(
-    selectedDateTime?.getFullYear() ?? today.getFullYear(),
+    initialCalendarDate.getFullYear(),
   );
   const [currentMonth, setCurrentMonth] = useState(
-    selectedDateTime?.getMonth() ?? today.getMonth(),
+    initialCalendarDate.getMonth(),
   );
   const [viewMode, setViewMode] = useState<ViewMode>("days");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isDarkMode =
-    theme === "dark" ||
-    (theme === "system" &&
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDarkMode = useDarkMode(theme);
 
   const open = useCallback(() => {
     if (disabled) return;
-    const startingDate = selectedDateTime ?? new Date();
+    const startingDate =
+      selectedDateTime ?? clampDateToRange(new Date(), min, max);
     setDraftDate(selectedDateTime);
     setDraftTime(selectedDateTime ? getTimeFromDate(selectedDateTime) : null);
     setCurrentYear(startingDate.getFullYear());
@@ -95,18 +103,25 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
     setViewMode("days");
     setStep("date");
     setIsOpen(true);
-  }, [disabled, selectedDateTime]);
+  }, [disabled, selectedDateTime, min, max]);
 
   const dismiss = useCallback(() => {
     setIsOpen(false);
     onBlur?.();
   }, [onBlur]);
 
+  useEffect(() => {
+    if (disabled) setIsOpen(false);
+  }, [disabled]);
+
   const clear = useCallback(() => {
-    if (required) return;
+    if (disabled || required) return;
+    setDraftDate(null);
+    setDraftTime(null);
+    setStep("date");
     if (!controlled) setInternalValue(null);
     onChange?.(null);
-  }, [controlled, onChange, required]);
+  }, [controlled, disabled, onChange, required]);
 
   const handleDaySelect = (day: number) => {
     const nextDate = new Date(currentYear, currentMonth, day);
@@ -154,9 +169,9 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
   );
 
   const confirm = () => {
-    if (!draftDateTime || !draftIsValid) return;
-    if (!controlled) setInternalValue(draftDateTime);
-    onChange?.(draftDateTime);
+    if (disabled || !draftDateTime || !draftIsValid) return;
+    if (!controlled) setInternalValue(new Date(draftDateTime.getTime()));
+    onChange?.(new Date(draftDateTime.getTime()));
     dismiss();
   };
 
@@ -169,6 +184,7 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
       content = (
         <YearGrid
           currentYear={currentYear}
+          selectedDate={draftDate}
           min={min}
           max={max}
           onSelect={handleYearSelect}
@@ -179,9 +195,7 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
       content = (
         <MonthGrid
           currentYear={currentYear}
-          currentMonth={currentMonth}
           selectedDate={draftDate}
-          includeDays
           min={min}
           max={max}
           onSelect={handleMonthSelect}
@@ -207,8 +221,10 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
           title={title}
           onPrev={() => navigate("prev")}
           onNext={() => navigate("next")}
-          onTitleClick={() =>
-            setViewMode(viewMode === "days" ? "months" : "years")
+          onTitleClick={
+            viewMode === "years"
+              ? undefined
+              : () => setViewMode(viewMode === "days" ? "months" : "years")
           }
         />
         {content}
@@ -228,6 +244,13 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
       className={`byte-datepicker-container ${className} ${isDarkMode ? "byte-dark" : ""}`}
       ref={containerRef}
     >
+      <PickerFormInput
+        sourceRef={containerRef}
+        name={name}
+        value={selectedDateTime ? formatLocalDateTime(selectedDateTime) : ""}
+        required={required}
+        disabled={disabled}
+      />
       {!hideInput ? (
         <DatePickerInput
           label={formattedValue}
@@ -236,8 +259,6 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
           disabled={disabled}
           error={error}
           required={required}
-          name={name}
-          value={selectedDateTime ? formatLocalDateTime(selectedDateTime) : ""}
           onClick={isOpen ? dismiss : open}
           onClear={clear}
           clearable={clearable}
@@ -263,66 +284,70 @@ export default function ByteDateTimePicker(props: DateTimePickerProps) {
         dark={isDarkMode}
         ariaLabel="Choose a date and time"
       >
-        <div
-          className="byte-picker-steps"
-          aria-label="Date and time selection progress"
-        >
-          <span className={step === "date" ? "active" : "complete"}>Date</span>
-          <span aria-hidden="true">→</span>
-          <span className={step === "time" ? "active" : ""}>Time</span>
-        </div>
+        {isOpen && (
+          <>
+            <div
+              className="byte-picker-steps"
+              aria-label="Date and time selection progress"
+            >
+              <span className={step === "date" ? "active" : "complete"}>Date</span>
+              <span aria-hidden="true">→</span>
+              <span className={step === "time" ? "active" : ""}>Time</span>
+            </div>
 
-        {step === "date" ? (
-          <>
-            {renderCalendar()}
-            <div className="byte-picker-footer">
-              <button
-                className="byte-action-btn byte-action-secondary"
-                type="button"
-                onClick={dismiss}
-              >
-                Cancel
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 className="byte-picker-heading">Select time</h2>
-            <TimeSelector
-              value={draftTime}
-              onChange={setDraftTime}
-              hourFormat={hourFormat}
-              minuteStep={minuteStep}
-            />
-            {draftTime && !draftIsValid && (
-              <p className="byte-picker-error" role="status">
-                Choose a time within the allowed date and time range.
-              </p>
+            {step === "date" ? (
+              <>
+                {renderCalendar()}
+                <div className="byte-picker-footer">
+                  <button
+                    className="byte-action-btn byte-action-secondary"
+                    type="button"
+                    onClick={dismiss}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="byte-picker-heading">Select time</h2>
+                <TimeSelector
+                  value={draftTime}
+                  onChange={setDraftTime}
+                  hourFormat={hourFormat}
+                  minuteStep={minuteStep}
+                />
+                {draftTime && !draftIsValid && (
+                  <p className="byte-picker-error" role="status">
+                    Choose a time within the allowed date and time range.
+                  </p>
+                )}
+                <div className="byte-picker-footer">
+                  <button
+                    className="byte-action-btn byte-action-secondary"
+                    type="button"
+                    onClick={() => setStep("date")}
+                  >
+                    Back
+                  </button>
+                  <button
+                    className="byte-action-btn byte-action-secondary"
+                    type="button"
+                    onClick={dismiss}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="byte-action-btn byte-action-primary"
+                    type="button"
+                    onClick={confirm}
+                    disabled={!draftIsValid}
+                  >
+                    Done
+                  </button>
+                </div>
+              </>
             )}
-            <div className="byte-picker-footer">
-              <button
-                className="byte-action-btn byte-action-secondary"
-                type="button"
-                onClick={() => setStep("date")}
-              >
-                Back
-              </button>
-              <button
-                className="byte-action-btn byte-action-secondary"
-                type="button"
-                onClick={dismiss}
-              >
-                Cancel
-              </button>
-              <button
-                className="byte-action-btn byte-action-primary"
-                type="button"
-                onClick={confirm}
-                disabled={!draftIsValid}
-              >
-                Done
-              </button>
-            </div>
           </>
         )}
       </PickerPopover>

@@ -33,6 +33,11 @@ export function PickerPopover({
 }: PickerPopoverProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const onDismissRef = useRef(onDismiss);
+
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
 
   useEffect(() => {
     if (!open) return;
@@ -46,29 +51,32 @@ export function PickerPopover({
         !sourceRef.current?.contains(target) &&
         !dropdownRef.current?.contains(target)
       ) {
-        onDismiss();
+        onDismissRef.current();
       }
     };
 
     const handleEscape = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onDismiss();
+        event.stopPropagation();
+        onDismissRef.current();
       }
     };
 
     document.addEventListener("mousedown", handlePointerDown);
     document.addEventListener("touchstart", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("keydown", handleEscape, true);
 
     return () => {
       cancelAnimationFrame(frame);
       document.removeEventListener("mousedown", handlePointerDown);
       document.removeEventListener("touchstart", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-      previousFocusRef.current?.focus();
+      document.removeEventListener("keydown", handleEscape, true);
+      if (previousFocusRef.current?.isConnected) {
+        previousFocusRef.current.focus();
+      }
     };
-  }, [open, onDismiss, sourceRef]);
+  }, [open, sourceRef]);
 
   if (!open || typeof document === "undefined") return null;
 

@@ -3,6 +3,7 @@ import { isYearInRange } from "../utils/dateUtils";
 
 interface YearGridProps {
   currentYear: number;
+  selectedDate: Date | null;
   min?: Date;
   max?: Date;
   onSelect: (year: number) => void;
@@ -10,6 +11,7 @@ interface YearGridProps {
 
 export const YearGrid: React.FC<YearGridProps> = ({
   currentYear,
+  selectedDate,
   min,
   max,
   onSelect,
@@ -22,7 +24,7 @@ export const YearGrid: React.FC<YearGridProps> = ({
       {yearRange.map((year) => {
         const disabled = !isYearInRange(year, min, max);
         const isCurrent = year === today.getFullYear();
-        const isSelected = year === currentYear;
+        const isSelected = selectedDate?.getFullYear() === year;
 
         return (
           <button
@@ -31,6 +33,8 @@ export const YearGrid: React.FC<YearGridProps> = ({
             onClick={() => onSelect(year)}
             disabled={disabled}
             type="button"
+            aria-label={`${year}`}
+            aria-pressed={isSelected}
           >
             {year}
           </button>

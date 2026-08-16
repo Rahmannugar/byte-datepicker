@@ -9,33 +9,36 @@ interface TimeSelectorProps {
   minuteStep?: number;
 }
 
+function getSelectorValue(value: string | null, hourFormat: HourFormat) {
+  const parsed = parseTime(value);
+  if (!parsed) return { hour: "", minute: "", period: "" };
+
+  return {
+    hour:
+      hourFormat === 24
+        ? String(parsed.hour).padStart(2, "0")
+        : String(parsed.hour % 12 || 12),
+    minute: String(parsed.minute).padStart(2, "0"),
+    period: hourFormat === 12 ? (parsed.hour >= 12 ? "PM" : "AM") : "",
+  };
+}
+
 export function TimeSelector({
   value,
   onChange,
   hourFormat,
   minuteStep,
 }: TimeSelectorProps) {
-  const parsedValue = parseTime(value);
-  const [hour, setHour] = useState("");
-  const [minute, setMinute] = useState("");
-  const [period, setPeriod] = useState("");
+  const initialValue = getSelectorValue(value, hourFormat);
+  const [hour, setHour] = useState(initialValue.hour);
+  const [minute, setMinute] = useState(initialValue.minute);
+  const [period, setPeriod] = useState(initialValue.period);
 
   useEffect(() => {
-    if (!parsedValue) {
-      setHour("");
-      setMinute("");
-      setPeriod("");
-      return;
-    }
-
-    setMinute(String(parsedValue.minute).padStart(2, "0"));
-    if (hourFormat === 24) {
-      setHour(String(parsedValue.hour).padStart(2, "0"));
-      setPeriod("");
-    } else {
-      setHour(String(parsedValue.hour % 12 || 12));
-      setPeriod(parsedValue.hour >= 12 ? "PM" : "AM");
-    }
+    const nextValue = getSelectorValue(value, hourFormat);
+    setHour(nextValue.hour);
+    setMinute(nextValue.minute);
+    setPeriod(nextValue.period);
   }, [value, hourFormat]);
 
   const minuteOptions = useMemo(() => {

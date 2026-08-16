@@ -1,7 +1,9 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DatePickerInput } from "./components/DatePickerInput";
 import { PickerPopover } from "./components/PickerPopover";
+import { PickerFormInput } from "./components/PickerFormInput";
 import { TimeSelector } from "./components/TimeSelector";
+import { useDarkMode } from "./hooks/useDarkMode";
 import { TimePickerProps } from "./types";
 import {
   formatTimeForDisplay,
@@ -45,11 +47,7 @@ export default function ByteTimePicker(props: TimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isDarkMode =
-    theme === "dark" ||
-    (theme === "system" &&
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDarkMode = useDarkMode(theme);
 
   const open = useCallback(() => {
     if (disabled) return;
@@ -62,18 +60,23 @@ export default function ByteTimePicker(props: TimePickerProps) {
     onBlur?.();
   }, [onBlur]);
 
+  useEffect(() => {
+    if (disabled) setIsOpen(false);
+  }, [disabled]);
+
   const clear = useCallback(() => {
-    if (required) return;
+    if (disabled || required) return;
+    setDraftTime(null);
     if (!controlled) setInternalValue(null);
     onChange?.(null);
-  }, [controlled, onChange, required]);
+  }, [controlled, disabled, onChange, required]);
 
   const draftIsValid = Boolean(
     draftTime && isTimeInRange(draftTime, minTime, maxTime),
   );
 
   const confirm = () => {
-    if (!draftTime || !draftIsValid) return;
+    if (disabled || !draftTime || !draftIsValid) return;
     if (!controlled) setInternalValue(draftTime);
     onChange?.(draftTime);
     dismiss();
@@ -88,6 +91,13 @@ export default function ByteTimePicker(props: TimePickerProps) {
       className={`byte-datepicker-container ${className} ${isDarkMode ? "byte-dark" : ""}`}
       ref={containerRef}
     >
+      <PickerFormInput
+        sourceRef={containerRef}
+        name={name}
+        value={selectedTime || ""}
+        required={required}
+        disabled={disabled}
+      />
       {!hideInput ? (
         <DatePickerInput
           label={formattedValue}
@@ -96,8 +106,6 @@ export default function ByteTimePicker(props: TimePickerProps) {
           disabled={disabled}
           error={error}
           required={required}
-          name={name}
-          value={selectedTime || ""}
           onClick={isOpen ? dismiss : open}
           onClear={clear}
           clearable={clearable}
@@ -124,35 +132,39 @@ export default function ByteTimePicker(props: TimePickerProps) {
         dark={isDarkMode}
         ariaLabel="Choose a time"
       >
-        <h2 className="byte-picker-heading">Select time</h2>
-        <TimeSelector
-          value={draftTime}
-          onChange={setDraftTime}
-          hourFormat={hourFormat}
-          minuteStep={minuteStep}
-        />
-        {draftTime && !draftIsValid && (
-          <p className="byte-picker-error" role="status">
-            Choose a time within the allowed range.
-          </p>
+        {isOpen && (
+          <>
+            <h2 className="byte-picker-heading">Select time</h2>
+            <TimeSelector
+              value={draftTime}
+              onChange={setDraftTime}
+              hourFormat={hourFormat}
+              minuteStep={minuteStep}
+            />
+            {draftTime && !draftIsValid && (
+              <p className="byte-picker-error" role="status">
+                Choose a time within the allowed range.
+              </p>
+            )}
+            <div className="byte-picker-footer">
+              <button
+                className="byte-action-btn byte-action-secondary"
+                type="button"
+                onClick={dismiss}
+              >
+                Cancel
+              </button>
+              <button
+                className="byte-action-btn byte-action-primary"
+                type="button"
+                onClick={confirm}
+                disabled={!draftIsValid}
+              >
+                Done
+              </button>
+            </div>
+          </>
         )}
-        <div className="byte-picker-footer">
-          <button
-            className="byte-action-btn byte-action-secondary"
-            type="button"
-            onClick={dismiss}
-          >
-            Cancel
-          </button>
-          <button
-            className="byte-action-btn byte-action-primary"
-            type="button"
-            onClick={confirm}
-            disabled={!draftIsValid}
-          >
-            Done
-          </button>
-        </div>
       </PickerPopover>
     </div>
   );
