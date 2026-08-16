@@ -1,7 +1,7 @@
 {
   "name": "byte-datepicker",
-  "version": "2.2.2",
-  "description": "A lightweight, elegant, and highly customizable React datepicker component library with support for both month/year and full date selection.",
+  "version": "3.0.0",
+  "description": "Lightweight, accessible React date, time, and date-time picker components.",
   "author": "Rahman Nugar",
   "license": "MIT",
   "main": "dist/index.js",
@@ -25,7 +25,9 @@
     "component",
     "ui",
     "month-picker",
-    "year-picker"
+    "year-picker",
+    "time-picker",
+    "datetime-picker"
   ],
   "files": [
     "dist"

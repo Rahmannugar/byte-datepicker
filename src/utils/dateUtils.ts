@@ -41,6 +41,60 @@ export function normalizeToDate(val?: Date | string | null): Date | undefined {
   return isNaN(parsed.getTime()) ? undefined : parsed;
 }
 
+export function normalizeToDateTime(
+  val?: Date | string | null
+): Date | undefined {
+  if (!val) return undefined;
+  if (val instanceof Date) {
+    return isNaN(val.getTime()) ? undefined : new Date(val.getTime());
+  }
+
+  const localDateTime =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(val);
+  if (localDateTime) {
+    const [, year, month, day, hour, minute, second = "0"] = localDateTime;
+    const parsed = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second)
+    );
+    return isNaN(parsed.getTime()) ? undefined : parsed;
+  }
+
+  const localDate = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val);
+  if (localDate) {
+    const [, year, month, day] = localDate;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+
+  const parsed = new Date(val);
+  return isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+export function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function formatLocalDateTime(date: Date): string {
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  return `${formatLocalDate(date)}T${hour}:${minute}`;
+}
+
+export function isSameLocalDate(first: Date, second: Date): boolean {
+  return (
+    first.getFullYear() === second.getFullYear() &&
+    first.getMonth() === second.getMonth() &&
+    first.getDate() === second.getDate()
+  );
+}
+
 export function normalizeToStartOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }

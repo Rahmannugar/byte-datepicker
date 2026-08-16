@@ -15,7 +15,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
 }) => {
   return (
     <div className="byte-header">
-      <button className="byte-nav-btn" onClick={onPrev} type="button">
+      <button className="byte-nav-btn" onClick={onPrev} type="button" aria-label="Previous">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -35,7 +35,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       >
         {title}
       </button>
-      <button className="byte-nav-btn" onClick={onNext} type="button">
+      <button className="byte-nav-btn" onClick={onNext} type="button" aria-label="Next">
         <svg
           viewBox="0 0 24 24"
           fill="none"
